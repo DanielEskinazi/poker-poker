@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { socketService } from '../services/socketService';
 import { storageService } from '../services/storageService';
 import { ParticipantList } from './ParticipantList';
+import { CardDeck } from './CardDeck';
+import { VoteCounter } from './VoteCounter';
+import { useVoting } from '../hooks/useVoting';
 
 /**
  * SessionPage Component
@@ -48,6 +51,13 @@ export function SessionPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  // Initialize voting hook
+  const voting = useVoting({
+    socket: socketService.getSocket(),
+    sessionId: sessionId || null,
+    participantId: currentParticipant?.participantId || null,
+  });
 
   // Generate or retrieve browser fingerprint
   const getBrowserFingerprint = (): string => {
@@ -136,6 +146,12 @@ export function SessionPage() {
       console.error('[SessionPage] Failed to fetch participants:', err);
     }
   };
+
+  // Merge voting status with participants
+  const participantsWithVotingStatus = participants.map((participant) => ({
+    ...participant,
+    hasVoted: voting.hasVoted[participant.participantId] || false,
+  }));
 
   // Set up real-time event listeners
   useEffect(() => {
@@ -309,25 +325,112 @@ export function SessionPage() {
                   Participants ({participants.length})
                 </h3>
                 <ParticipantList
-                  participants={participants}
+                  participants={participantsWithVotingStatus}
                   currentParticipantId={currentParticipant?.participantId || ''}
                 />
               </div>
             </div>
 
             {/* Voting Area */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-md p-8">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">
-                  {session?.storyDescription || 'Story to estimate'}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Story Description */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  Story to Estimate
                 </h3>
-                <div className="text-center py-12 text-gray-500">
-                  <p className="text-lg">Voting interface coming in Phase 5 (User Story 3)</p>
-                  <p className="mt-2">
-                    You've successfully joined the session!
-                  </p>
-                </div>
+                <p className="text-gray-600">
+                  {session?.storyDescription || 'No story description provided'}
+                </p>
               </div>
+
+              {/* Vote Counter */}
+              <VoteCounter
+                votedCount={voting.votedCount}
+                totalParticipants={voting.totalParticipants}
+                votingState={voting.votingPhase}
+              />
+
+              {/* Card Deck */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <CardDeck
+                  onCardSelect={voting.castVote}
+                  selectedCard={voting.selectedCard}
+                  disabled={voting.isVoting}
+                  votingState={voting.votingPhase}
+                />
+              </div>
+
+              {/* Moderator Controls */}
+              {currentParticipant?.isModerator && (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                    Moderator Controls
+                  </h3>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={voting.revealVotes}
+                      disabled={voting.votingPhase === 'revealed' || voting.votedCount === 0}
+                      className="flex-1 py-3 px-6 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors duration-200"
+                    >
+                      Reveal Votes
+                    </button>
+                    <button
+                      onClick={voting.resetVotes}
+                      disabled={voting.votingPhase === 'voting'}
+                      className="flex-1 py-3 px-6 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors duration-200"
+                    >
+                      Reset Votes
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Revealed Votes */}
+              {voting.votingPhase === 'revealed' && voting.revealedVotes.length > 0 && (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                    Revealed Votes
+                  </h3>
+
+                  {/* Statistics */}
+                  {voting.statistics && (
+                    <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-600">Average</p>
+                          <p className="text-2xl font-bold text-gray-800">
+                            {voting.statistics.averageNumeric?.toFixed(1) || 'N/A'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Consensus</p>
+                          <p className="text-2xl font-bold text-gray-800">
+                            {voting.statistics.consensus ? (
+                              <span className="text-green-600">✓ Yes</span>
+                            ) : (
+                              <span className="text-orange-600">✗ No</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Individual Votes */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {voting.revealedVotes.map((vote) => (
+                      <div
+                        key={vote.participantId}
+                        className="p-4 border-2 border-gray-200 rounded-lg text-center"
+                      >
+                        <div className="text-3xl mb-2">{vote.participantEmoji}</div>
+                        <div className="text-sm text-gray-600 mb-1">{vote.participantName}</div>
+                        <div className="text-2xl font-bold text-blue-600">{vote.cardValue}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

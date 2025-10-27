@@ -3,6 +3,7 @@ import type { Server as HTTPServer } from 'http';
 import { env } from '../config/environment.js';
 import { logWebSocketEvent, logError } from '../utils/logger.js';
 import { registerSessionHandlers } from './handlers/sessionHandlers.js';
+import { registerVotingHandlers } from './handlers/votingHandlers.js';
 
 /**
  * Create and configure Socket.io server
@@ -35,8 +36,10 @@ export function createSocketServer(httpServer: HTTPServer) {
     // Register session event handlers
     registerSessionHandlers(socket);
 
+    // Register voting event handlers (Phase 5)
+    registerVotingHandlers(socket);
+
     // TODO: Register other event handlers in future phases
-    // - registerVotingHandlers(socket) - Phase 5
     // - registerModeratorHandlers(socket) - Phase 9
 
     socket.on('disconnect', (reason) => {
