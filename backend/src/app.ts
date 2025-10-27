@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { env } from './config/environment.js';
 import logger from './utils/logger.js';
+import sessionsRouter from './api/routes/sessions.js';
 
 /**
  * Create and configure Express application
@@ -28,6 +29,9 @@ export function createApp() {
     });
     next();
   });
+
+  // API Routes
+  app.use('/api', sessionsRouter);
 
   // Health check endpoint
   app.get('/api/health', (_req, res) => {

@@ -11,7 +11,7 @@ export function sanitizeInput(input: string): string {
 /**
  * Validate and sanitize participant name
  */
-export function validateName(name: unknown): {
+export function validateNameDetailed(name: unknown): {
   valid: boolean;
   sanitized?: string;
   error?: string;
@@ -37,6 +37,23 @@ export function validateName(name: unknown): {
   }
 
   return { valid: true, sanitized };
+}
+
+/**
+ * Sanitize name string (convenience function)
+ */
+export function sanitizeName(name: string): string {
+  return sanitizeInput(name.trim());
+}
+
+/**
+ * Simple name validation (returns boolean)
+ */
+export function validateName(name: string): boolean {
+  if (!name || name.length === 0 || name.length > 50) {
+    return false;
+  }
+  return true;
 }
 
 /**

@@ -86,19 +86,19 @@
 
 ### Tests for User Story 1 (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T033** [P] [US1] Contract test for POST /api/sessions in backend/tests/contract/create-session.test.ts (from quickstart.md)
-- [ ] **T034** [P] [US1] Contract test for WebSocket create-session event in backend/tests/contract/websocket-create.test.ts
-- [ ] **T035** [P] [US1] E2E test for session creation flow in frontend/tests/e2e/session-creation.spec.ts
+- [X] **T033** [P] [US1] Contract test for POST /api/sessions in backend/tests/contract/create-session.test.ts (from quickstart.md)
+- [X] **T034** [P] [US1] Contract test for WebSocket create-session event in backend/tests/contract/websocket-create.test.ts
+- [X] **T035** [P] [US1] E2E test for session creation flow in frontend/tests/e2e/session-creation.spec.ts
 
 ### Implementation for User Story 1
 
-- [ ] **T036** [US1] Implement SessionService.createSession() in backend/src/services/SessionService.ts (creates session, assigns emoji, returns session data)
-- [ ] **T037** [US1] Implement POST /api/sessions endpoint in backend/src/api/routes/sessions.ts (calls SessionService.createSession)
-- [ ] **T038** [US1] Implement WebSocket handler for create-session event in backend/src/websocket/handlers/sessionHandlers.ts
-- [ ] **T039** [US1] Create HomePage component in frontend/src/components/HomePage.tsx (name input, create button)
-- [ ] **T040** [US1] Create useSession hook in frontend/src/hooks/useSession.ts (manages session state, calls create APIs)
-- [ ] **T041** [US1] Implement session creation flow in HomePage (form submission → API call → redirect)
-- [ ] **T042** [US1] Add clipboard copy functionality with visual feedback toast in frontend/src/utils/clipboard.ts
+- [X] **T036** [US1] Implement SessionService.createSession() in backend/src/services/SessionService.ts (creates session, assigns emoji, returns session data)
+- [X] **T037** [US1] Implement POST /api/sessions endpoint in backend/src/api/routes/sessions.ts (calls SessionService.createSession)
+- [X] **T038** [US1] Implement WebSocket handler for create-session event in backend/src/websocket/handlers/sessionHandlers.ts
+- [X] **T039** [US1] Create HomePage component in frontend/src/components/HomePage.tsx (name input, create button)
+- [X] **T040** [US1] Create useSession hook in frontend/src/hooks/useSession.ts (manages session state, calls create APIs)
+- [X] **T041** [US1] Implement session creation flow in HomePage (form submission → API call → redirect)
+- [X] **T042** [US1] Add clipboard copy functionality with visual feedback toast in frontend/src/utils/clipboard.ts
 - [ ] **T043** [US1] Verify contract tests T033-T035 now PASS
 
 **Checkpoint**: Users can create sessions and get shareable links. Test independently before proceeding.

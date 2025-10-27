@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HomePage } from './components/HomePage';
 
 /**
  * Main App Component
@@ -11,12 +12,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Routes>
-          <Route path="/" element={<div>Home Page - TODO</div>} />
-          <Route path="/session/:sessionId" element={<div>Session Page - TODO</div>} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/session/:sessionId" element={<div className="p-8">Session Page - Coming in Phase 4</div>} />
+      </Routes>
     </Router>
   );
 }
