@@ -56,11 +56,11 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        creatorSocket.on('connection-established', () => resolve());
+        creatorSocket.once('connection-established', () => resolve());
       });
 
       const createSessionPromise = new Promise<{ sessionId: string }>((resolve) => {
-        creatorSocket.on('session-created', (data) => resolve(data));
+        creatorSocket.once('session-created', (data) => resolve(data));
       });
 
       creatorSocket.emit('create-session', {
@@ -78,11 +78,12 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        joinerSocket.on('connection-established', () => resolve());
+        joinerSocket.once('connection-established', () => resolve());
       });
 
+      // Set up listener BEFORE emitting
       const joinAcceptedPromise = new Promise<any>((resolve) => {
-        joinerSocket.on('join-accepted', (data) => resolve(data));
+        joinerSocket.once('join-accepted', (data) => resolve(data));
       });
 
       joinerSocket.emit('join-session', {
@@ -128,11 +129,11 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        creatorSocket.on('connection-established', () => resolve());
+        creatorSocket.once('connection-established', () => resolve());
       });
 
       const createSessionPromise = new Promise<{ sessionId: string }>((resolve) => {
-        creatorSocket.on('session-created', (data) => resolve(data));
+        creatorSocket.once('session-created', (data) => resolve(data));
       });
 
       creatorSocket.emit('create-session', {
@@ -142,9 +143,9 @@ describe('Contract: join-session WebSocket Event', () => {
 
       const { sessionId } = await createSessionPromise;
 
-      // Listen for participant-joined on creator's socket
+      // Set up listener BEFORE joiner connects
       const participantJoinedPromise = new Promise<any>((resolve) => {
-        creatorSocket.on('participant-joined', (data) => resolve(data));
+        creatorSocket.once('participant-joined', (data) => resolve(data));
       });
 
       // Join with another participant
@@ -155,7 +156,7 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        joinerSocket.on('connection-established', () => resolve());
+        joinerSocket.once('connection-established', () => resolve());
       });
 
       joinerSocket.emit('join-session', {
@@ -191,11 +192,11 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        creatorSocket.on('connection-established', () => resolve());
+        creatorSocket.once('connection-established', () => resolve());
       });
 
       const createSessionPromise = new Promise<{ sessionId: string, participant: any }>((resolve) => {
-        creatorSocket.on('session-created', (data) => resolve(data));
+        creatorSocket.once('session-created', (data) => resolve(data));
       });
 
       creatorSocket.emit('create-session', {
@@ -217,11 +218,12 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        reconnectSocket.on('connection-established', () => resolve());
+        reconnectSocket.once('connection-established', () => resolve());
       });
 
+      // Set up listener BEFORE emitting
       const joinAcceptedPromise = new Promise<any>((resolve) => {
-        reconnectSocket.on('join-accepted', (data) => resolve(data));
+        reconnectSocket.once('join-accepted', (data) => resolve(data));
       });
 
       reconnectSocket.emit('join-session', {
@@ -250,11 +252,12 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        joinerSocket.on('connection-established', () => resolve());
+        joinerSocket.once('connection-established', () => resolve());
       });
 
+      // Set up listener BEFORE emitting
       const errorPromise = new Promise<any>((resolve) => {
-        joinerSocket.on('error', (data) => resolve(data));
+        joinerSocket.once('error', (data) => resolve(data));
       });
 
       joinerSocket.emit('join-session', {
@@ -281,11 +284,11 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        creatorSocket.on('connection-established', () => resolve());
+        creatorSocket.once('connection-established', () => resolve());
       });
 
       const createSessionPromise = new Promise<{ sessionId: string }>((resolve) => {
-        creatorSocket.on('session-created', (data) => resolve(data));
+        creatorSocket.once('session-created', (data) => resolve(data));
       });
 
       creatorSocket.emit('create-session', {
@@ -305,11 +308,12 @@ describe('Contract: join-session WebSocket Event', () => {
         });
 
         await new Promise<void>((resolve) => {
-          socket.on('connection-established', () => resolve());
+          socket.once('connection-established', () => resolve());
         });
 
+        // Set up listener BEFORE emitting
         const joinPromise = new Promise<void>((resolve) => {
-          socket.on('join-accepted', () => resolve());
+          socket.once('join-accepted', () => resolve());
         });
 
         socket.emit('join-session', {
@@ -330,11 +334,12 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        joinerSocket.on('connection-established', () => resolve());
+        joinerSocket.once('connection-established', () => resolve());
       });
 
+      // Set up listener BEFORE emitting
       const errorPromise = new Promise<any>((resolve) => {
-        joinerSocket.on('error', (data) => resolve(data));
+        joinerSocket.once('error', (data) => resolve(data));
       });
 
       joinerSocket.emit('join-session', {
@@ -364,11 +369,11 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        creatorSocket.on('connection-established', () => resolve());
+        creatorSocket.once('connection-established', () => resolve());
       });
 
       const createSessionPromise = new Promise<{ sessionId: string }>((resolve) => {
-        creatorSocket.on('session-created', (data) => resolve(data));
+        creatorSocket.once('session-created', (data) => resolve(data));
       });
 
       creatorSocket.emit('create-session', {
@@ -386,11 +391,12 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        joinerSocket.on('connection-established', () => resolve());
+        joinerSocket.once('connection-established', () => resolve());
       });
 
-      await new Promise<void>((resolve) => {
-        joinerSocket.on('join-accepted', () => resolve());
+      // Set up listener BEFORE emitting
+      const joinPromise = new Promise<void>((resolve) => {
+        joinerSocket.once('join-accepted', () => resolve());
       });
 
       joinerSocket.emit('join-session', {
@@ -398,6 +404,8 @@ describe('Contract: join-session WebSocket Event', () => {
         name: 'Bob',
         browserFingerprint: 'joiner-fingerprint-456'
       });
+
+      await joinPromise;
 
       // Try to join again with same fingerprint but different socket
       const duplicateSocket = ioClient(serverUrl, {
@@ -407,11 +415,12 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        duplicateSocket.on('connection-established', () => resolve());
+        duplicateSocket.once('connection-established', () => resolve());
       });
 
+      // Set up listener BEFORE emitting
       const errorPromise = new Promise<any>((resolve) => {
-        duplicateSocket.on('error', (data) => resolve(data));
+        duplicateSocket.once('error', (data) => resolve(data));
       });
 
       duplicateSocket.emit('join-session', {
@@ -440,11 +449,11 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        creatorSocket.on('connection-established', () => resolve());
+        creatorSocket.once('connection-established', () => resolve());
       });
 
       const createSessionPromise = new Promise<{ sessionId: string }>((resolve) => {
-        creatorSocket.on('session-created', (data) => resolve(data));
+        creatorSocket.once('session-created', (data) => resolve(data));
       });
 
       creatorSocket.emit('create-session', {
@@ -461,11 +470,12 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        joinerSocket.on('connection-established', () => resolve());
+        joinerSocket.once('connection-established', () => resolve());
       });
 
+      // Set up listener BEFORE emitting
       const errorPromise = new Promise<any>((resolve) => {
-        joinerSocket.on('error', (data) => resolve(data));
+        joinerSocket.once('error', (data) => resolve(data));
       });
 
       joinerSocket.emit('join-session', {
@@ -492,11 +502,11 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        creatorSocket.on('connection-established', () => resolve());
+        creatorSocket.once('connection-established', () => resolve());
       });
 
       const createSessionPromise = new Promise<{ sessionId: string }>((resolve) => {
-        creatorSocket.on('session-created', (data) => resolve(data));
+        creatorSocket.once('session-created', (data) => resolve(data));
       });
 
       creatorSocket.emit('create-session', {
@@ -513,11 +523,12 @@ describe('Contract: join-session WebSocket Event', () => {
       });
 
       await new Promise<void>((resolve) => {
-        joinerSocket.on('connection-established', () => resolve());
+        joinerSocket.once('connection-established', () => resolve());
       });
 
+      // Set up listener BEFORE emitting
       const errorPromise = new Promise<any>((resolve) => {
-        joinerSocket.on('error', (data) => resolve(data));
+        joinerSocket.once('error', (data) => resolve(data));
       });
 
       joinerSocket.emit('join-session', {

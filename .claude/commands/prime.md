@@ -14,12 +14,6 @@ Run the commands under the `Execute` section to gather information about the pro
 ## Read
 
 - README.md
-- /specs/example-timer-feature-spec.md
-- /specs/feature-spec-template.md
-- /specs/feature-specification.md
-- /specs/planning-poker-readme.md
-- /specs/spec-workflow-guide.md
--
 
 ## Report
 

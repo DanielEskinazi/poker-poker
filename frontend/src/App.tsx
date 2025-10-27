@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HomePage } from './components/HomePage';
+import { SessionPage } from './components/SessionPage';
 
 /**
  * Main App Component
@@ -14,7 +15,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/session/:sessionId" element={<div className="p-8">Session Page - Coming in Phase 4</div>} />
+        <Route path="/session/:sessionId" element={<SessionPage />} />
       </Routes>
     </Router>
   );

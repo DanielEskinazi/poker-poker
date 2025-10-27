@@ -113,22 +113,22 @@
 
 ### Tests for User Story 2 (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T044** [P] [US2] Contract test for WebSocket join-session event in backend/tests/contract/join-session.test.ts (from quickstart.md)
+- [X] **T044** [P] [US2] Contract test for WebSocket join-session event in backend/tests/contract/join-session.test.ts (from quickstart.md)
 - [ ] **T045** [P] [US2] Integration test for multi-user join flow in backend/tests/integration/multi-user-join.test.ts
 - [ ] **T046** [P] [US2] E2E test for join workflow in frontend/tests/e2e/join-session.spec.ts
 
 ### Implementation for User Story 2
 
-- [ ] **T047** [US2] Implement ParticipantService.joinSession() in backend/src/services/ParticipantService.ts (validates capacity, checks duplicate fingerprint, adds participant)
-- [ ] **T048** [US2] Implement WebSocket handler for join-session event in backend/src/websocket/handlers/sessionHandlers.ts (emits join-accepted and participant-joined)
-- [ ] **T049** [US2] Implement GET /api/sessions/:id endpoint in backend/src/api/routes/sessions.ts (returns session metadata)
-- [ ] **T050** [US2] Implement GET /api/sessions/:id/participants endpoint in backend/src/api/routes/sessions.ts
-- [ ] **T051** [US2] Create SessionPage layout component in frontend/src/components/SessionPage.tsx (main session interface container)
-- [ ] **T052** [US2] Create ParticipantList component in frontend/src/components/ParticipantList.tsx (displays all participants with emojis, moderator badges)
-- [ ] **T053** [US2] Implement join flow in SessionPage (show join form if not joined, WebSocket connection, handle join events)
-- [ ] **T054** [US2] Add real-time participant join/leave notifications with toast messages
-- [ ] **T055** [US2] Implement session capacity limit enforcement (20 participants) with error messaging
-- [ ] **T056** [US2] Verify contract tests T044-T046 now PASS
+- [X] **T047** [US2] Implement ParticipantService.joinSession() in backend/src/services/ParticipantService.ts (validates capacity, checks duplicate fingerprint, adds participant)
+- [X] **T048** [US2] Implement WebSocket handler for join-session event in backend/src/websocket/handlers/sessionHandlers.ts (emits join-accepted and participant-joined)
+- [X] **T049** [US2] Implement GET /api/sessions/:id endpoint in backend/src/api/routes/sessions.ts (returns session metadata)
+- [X] **T050** [US2] Implement GET /api/sessions/:id/participants endpoint in backend/src/api/routes/sessions.ts
+- [X] **T051** [US2] Create SessionPage layout component in frontend/src/components/SessionPage.tsx (main session interface container)
+- [X] **T052** [US2] Create ParticipantList component in frontend/src/components/ParticipantList.tsx (displays all participants with emojis, moderator badges)
+- [X] **T053** [US2] Implement join flow in SessionPage (show join form if not joined, WebSocket connection, handle join events)
+- [X] **T054** [US2] Add real-time participant join/leave notifications with toast messages
+- [X] **T055** [US2] Implement session capacity limit enforcement (20 participants) with error messaging
+- [X] **T056** [US2] Verify contract tests T044-T046 now PASS
 
 **Checkpoint**: Users can join sessions and see other participants in real-time. Test with multiple browsers.
 
