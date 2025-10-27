@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { config } from './config/environment.js';
+import { env } from './config/environment.js';
 import logger from './utils/logger.js';
 
 /**
@@ -12,7 +12,7 @@ export function createApp() {
   // CORS configuration
   app.use(
     cors({
-      origin: config.corsOrigin,
+      origin: env.CORS_ORIGIN,
       credentials: true,
     })
   );
@@ -61,7 +61,7 @@ export function createApp() {
         error: {
           code: 'INTERNAL_SERVER_ERROR',
           message:
-            config.nodeEnv === 'production'
+            env.NODE_ENV === 'production'
               ? 'Internal server error'
               : err.message,
         },

@@ -1,7 +1,7 @@
 import { createServer } from 'http';
 import { createApp } from './app.js';
 import { createSocketServer } from './websocket/socketServer.js';
-import { config } from './config/environment.js';
+import { env } from './config/environment.js';
 import logger from './utils/logger.js';
 
 /**
@@ -19,10 +19,10 @@ async function startServer() {
     const io = createSocketServer(httpServer);
 
     // Start listening
-    httpServer.listen(config.port, config.host, () => {
-      logger.info(`Server listening on http://${config.host}:${config.port}`, {
-        nodeEnv: config.nodeEnv,
-        corsOrigin: config.corsOrigin,
+    httpServer.listen(env.PORT, env.HOST, () => {
+      logger.info(`Server listening on http://${env.HOST}:${env.PORT}`, {
+        nodeEnv: env.NODE_ENV,
+        corsOrigin: env.CORS_ORIGIN,
       });
     });
 

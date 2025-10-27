@@ -1,11 +1,11 @@
 import winston from 'winston';
-import { config } from '../config/environment.js';
+import { env } from '../config/environment.js';
 
 /**
  * Create Winston logger instance with structured logging
  */
 const logger = winston.createLogger({
-  level: config.logLevel,
+  level: env.LOG_LEVEL,
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
@@ -22,7 +22,7 @@ const logger = winston.createLogger({
 });
 
 // If not in production, also log to console with colorized output
-if (config.nodeEnv !== 'production') {
+if (env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
       format: winston.format.combine(

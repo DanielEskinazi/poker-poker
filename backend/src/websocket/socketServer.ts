@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
-import { config } from '../config/environment.js';
+import { env } from '../config/environment.js';
 import { logWebSocketEvent, logError } from '../utils/logger.js';
 
 /**
@@ -9,7 +9,7 @@ import { logWebSocketEvent, logError } from '../utils/logger.js';
 export function createSocketServer(httpServer: HTTPServer) {
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: config.corsOrigin,
+      origin: env.CORS_ORIGIN,
       credentials: true,
     },
     // Connection configuration

@@ -99,24 +99,31 @@ export const ERROR_CODES = {
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   INVALID_SESSION_ID: 'INVALID_SESSION_ID',
   INVALID_CARD_VALUE: 'INVALID_CARD_VALUE',
-  
+
   // Session errors
   SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
   SESSION_FULL: 'SESSION_FULL',
   SESSION_EXPIRED: 'SESSION_EXPIRED',
-  
+
   // Participant errors
   PARTICIPANT_NOT_FOUND: 'PARTICIPANT_NOT_FOUND',
   ALREADY_IN_SESSION: 'ALREADY_IN_SESSION',
-  
+
   // Authorization errors
   NOT_AUTHORIZED: 'NOT_AUTHORIZED',
   MODERATOR_ONLY: 'MODERATOR_ONLY',
-  
+
   // Voting errors
   VOTES_ALREADY_REVEALED: 'VOTES_ALREADY_REVEALED',
   NO_VOTES_TO_REVEAL: 'NO_VOTES_TO_REVEAL',
-  
+
   // Rate limiting
   RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
 } as const;
+
+/**
+ * Helper function to check if a value is a valid CardValue
+ */
+export function isValidCardValue(value: unknown): value is CardValue {
+  return CARD_DECK.includes(value as CardValue);
+}
