@@ -9,6 +9,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import express from 'express';
 import cors from 'cors';
 import { registerSessionHandlers } from '../../src/websocket/handlers/sessionHandlers.js';
+import { registerVotingHandlers } from '../../src/websocket/handlers/votingHandlers.js';
 
 export interface TestServer {
   httpServer: ReturnType<typeof createServer>;
@@ -43,6 +44,7 @@ export async function createTestServer(): Promise<TestServer> {
     });
 
     registerSessionHandlers(socket);
+    registerVotingHandlers(socket);
   });
 
   // Find available port and start server
