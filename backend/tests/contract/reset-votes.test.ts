@@ -104,12 +104,28 @@ describe('Contract: reset-votes WebSocket Event', () => {
   });
 
   afterEach(async () => {
+    // Disconnect all sockets
     if (moderatorSocket?.connected) moderatorSocket.disconnect();
     if (participant1Socket?.connected) participant1Socket.disconnect();
     if (participant2Socket?.connected) participant2Socket.disconnect();
+
+    // Wait a bit for disconnections to process
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // Close server with force close of connections
     if (httpServer) {
-      await new Promise<void>((resolve) => {
-        httpServer.close(() => resolve());
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          // Force close if it takes too long
+          httpServer.closeAllConnections?.();
+          resolve();
+        }, 1000);
+
+        httpServer.close((err) => {
+          clearTimeout(timeout);
+          if (err) reject(err);
+          else resolve();
+        });
       });
     }
   });
