@@ -5,6 +5,7 @@ import { logWebSocketEvent, logError } from '../utils/logger.js';
 import { registerSessionHandlers } from './handlers/sessionHandlers.js';
 import { registerVotingHandlers } from './handlers/votingHandlers.js';
 import { registerConnectionHandlers } from './handlers/connectionHandlers.js';
+import { registerModeratorHandlers } from './handlers/moderatorHandlers.js';
 
 /**
  * Create and configure Socket.io server
@@ -43,8 +44,8 @@ export function createSocketServer(httpServer: HTTPServer) {
     // Register connection handlers (Phase 8 - User Story 6)
     registerConnectionHandlers(socket, io);
 
-    // TODO: Register other event handlers in future phases
-    // - registerModeratorHandlers(socket) - Phase 9
+    // Register moderator handlers (Phase 9)
+    registerModeratorHandlers(socket);
 
     socket.on('error', (error) => {
       logError('Socket error', error, { socketId: socket.id });

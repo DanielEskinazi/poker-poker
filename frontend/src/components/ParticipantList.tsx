@@ -6,6 +6,7 @@
  * - Moderator badge
  * - Voting status indicator (checkmark when voted)
  * - Connection status
+ * - Promote to Moderator button (for moderators only)
  */
 
 interface Participant {
@@ -20,9 +21,16 @@ interface Participant {
 interface ParticipantListProps {
   participants: Participant[];
   currentParticipantId: string;
+  onPromoteModerator?: (targetParticipantId: string) => void;
+  isCurrentUserModerator?: boolean;
 }
 
-export function ParticipantList({ participants, currentParticipantId }: ParticipantListProps) {
+export function ParticipantList({
+  participants,
+  currentParticipantId,
+  onPromoteModerator,
+  isCurrentUserModerator = false
+}: ParticipantListProps) {
   if (participants.length === 0) {
     return (
       <div className="text-center py-8 text-gray-400">
@@ -35,6 +43,7 @@ export function ParticipantList({ participants, currentParticipantId }: Particip
     <div className="space-y-2">
       {participants.map((participant) => {
         const isCurrentUser = participant.participantId === currentParticipantId;
+        const canPromote = isCurrentUserModerator && !isCurrentUser && !participant.isModerator && participant.isConnected;
 
         return (
           <div
@@ -90,8 +99,8 @@ export function ParticipantList({ participants, currentParticipantId }: Particip
                 </div>
               </div>
 
-              {/* Voting Status Indicator */}
-              <div className="flex items-center">
+              {/* Voting Status Indicator and Actions */}
+              <div className="flex items-center space-x-3">
                 {participant.hasVoted && (
                   <div
                     className="flex items-center justify-center w-8 h-8 bg-green-500 rounded-full"
@@ -112,6 +121,18 @@ export function ParticipantList({ participants, currentParticipantId }: Particip
                       />
                     </svg>
                   </div>
+                )}
+
+                {/* Promote to Moderator Button (only for moderators) */}
+                {canPromote && onPromoteModerator && (
+                  <button
+                    onClick={() => onPromoteModerator(participant.participantId)}
+                    className="text-xs px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full transition-colors duration-200 font-medium"
+                    data-testid={`promote-button-${participant.name.toLowerCase()}`}
+                    title={`Promote ${participant.name} to moderator`}
+                  >
+                    Promote
+                  </button>
                 )}
               </div>
             </div>

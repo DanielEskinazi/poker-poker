@@ -153,6 +153,20 @@ export function SessionPage() {
     hasVoted: voting.hasVoted[participant.participantId] || false,
   }));
 
+  // Handle promote moderator action
+  const handlePromoteModerator = (targetParticipantId: string) => {
+    if (!sessionId || !currentParticipant) return;
+
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    socket.emit('promote-moderator', {
+      sessionId,
+      promoterId: currentParticipant.participantId,
+      targetParticipantId
+    });
+  };
+
   // Set up real-time event listeners
   useEffect(() => {
     if (!isJoined) return;
@@ -180,16 +194,37 @@ export function SessionPage() {
       setTimeout(() => navigate('/'), 3000);
     };
 
+    // Handle moderator promoted
+    const handleModeratorPromoted = (data: any) => {
+      console.log('[SessionPage] Moderator promoted:', data);
+
+      const promotionMessage = data.promotionType === 'auto'
+        ? `${data.participantName} ${data.participantEmoji} was automatically promoted to moderator`
+        : `${data.participantName} ${data.participantEmoji} was promoted to moderator`;
+
+      showToast(promotionMessage, 'success');
+
+      // Update current participant if they were promoted
+      if (currentParticipant && data.participantId === currentParticipant.participantId) {
+        setCurrentParticipant({ ...currentParticipant, isModerator: true });
+      }
+
+      // Refresh participants list
+      fetchParticipants();
+    };
+
     socket.on('participant-joined', handleParticipantJoined);
     socket.on('participant-left', handleParticipantLeft);
     socket.on('session-expired', handleSessionExpired);
+    socket.on('moderator-promoted', handleModeratorPromoted);
 
     return () => {
       socket.off('participant-joined', handleParticipantJoined);
       socket.off('participant-left', handleParticipantLeft);
       socket.off('session-expired', handleSessionExpired);
+      socket.off('moderator-promoted', handleModeratorPromoted);
     };
-  }, [isJoined, navigate]);
+  }, [isJoined, navigate, currentParticipant]);
 
   // Check if already joined on mount
   useEffect(() => {
@@ -327,6 +362,8 @@ export function SessionPage() {
                 <ParticipantList
                   participants={participantsWithVotingStatus}
                   currentParticipantId={currentParticipant?.participantId || ''}
+                  onPromoteModerator={handlePromoteModerator}
+                  isCurrentUserModerator={currentParticipant?.isModerator || false}
                 />
               </div>
             </div>
@@ -371,6 +408,7 @@ export function SessionPage() {
                       onClick={voting.revealVotes}
                       disabled={voting.votingPhase === 'revealed' || voting.votedCount === 0}
                       className="flex-1 py-3 px-6 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors duration-200"
+                      data-testid="reveal-votes-btn"
                     >
                       Reveal Votes
                     </button>
@@ -378,6 +416,7 @@ export function SessionPage() {
                       onClick={voting.resetVotes}
                       disabled={voting.votingPhase === 'voting'}
                       className="flex-1 py-3 px-6 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors duration-200"
+                      data-testid="reset-votes-btn"
                     >
                       Reset Votes
                     </button>

@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io';
 import { sessionService } from '../../services/SessionService.js';
 import { participantService } from '../../services/ParticipantService.js';
+import { moderatorService, broadcastAutoPromotion } from './moderatorHandlers.js';
 import { logWebSocketEvent, logError } from '../../utils/logger.js';
 
 /**
@@ -119,30 +120,28 @@ export function handleDisconnect(socket: Socket, io: any) {
         timestamp: Date.now(),
       });
 
-      // If removed participant was the last moderator, auto-promote next participant
-      if (wasModerator && currentSession.moderatorIds.size === 0 && currentSession.participants.size > 0) {
-        // Get next participant (FIFO - first joined)
-        const nextParticipant = Array.from(currentSession.participants.values())[0];
+      // If removed participant was a moderator, check for auto-promotion
+      if (wasModerator) {
+        // Use ModeratorService to handle auto-promotion (FIFO algorithm)
+        const promotedParticipant = moderatorService.autoPromoteNextModerator(
+          currentSession,
+          participantId
+        );
 
-        // Promote to moderator
-        currentSession.moderatorIds.add(nextParticipant.participantId);
+        if (promotedParticipant) {
+          logWebSocketEvent('auto-promote-moderator', promotedParticipant.participantId, {
+            sessionId,
+            participantName: promotedParticipant.name,
+            reason: 'last-moderator-disconnected',
+          });
 
-        logWebSocketEvent('auto-promote-moderator', nextParticipant.participantId, {
-          sessionId,
-          participantName: nextParticipant.name,
-          reason: 'last-moderator-disconnected',
-        });
-
-        // Broadcast moderator-promoted event
-        io.to(sessionId).emit('moderator-promoted', {
-          participant: {
-            participantId: nextParticipant.participantId,
-            name: nextParticipant.name,
-            emoji: nextParticipant.emoji,
-          },
-          reason: 'auto-succession',
-          timestamp: Date.now(),
-        });
+          // Broadcast auto-promotion to all participants
+          broadcastAutoPromotion(io, sessionId, {
+            participantId: promotedParticipant.participantId,
+            name: promotedParticipant.name,
+            emoji: promotedParticipant.emoji,
+          });
+        }
       }
 
       // Clean up timer
