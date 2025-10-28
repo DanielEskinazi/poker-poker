@@ -4,6 +4,7 @@ import { env } from '../config/environment.js';
 import { logWebSocketEvent, logError } from '../utils/logger.js';
 import { registerSessionHandlers } from './handlers/sessionHandlers.js';
 import { registerVotingHandlers } from './handlers/votingHandlers.js';
+import { registerConnectionHandlers } from './handlers/connectionHandlers.js';
 
 /**
  * Create and configure Socket.io server
@@ -39,13 +40,11 @@ export function createSocketServer(httpServer: HTTPServer) {
     // Register voting event handlers (Phase 5)
     registerVotingHandlers(socket);
 
+    // Register connection handlers (Phase 8 - User Story 6)
+    registerConnectionHandlers(socket, io);
+
     // TODO: Register other event handlers in future phases
     // - registerModeratorHandlers(socket) - Phase 9
-
-    socket.on('disconnect', (reason) => {
-      logWebSocketEvent('client disconnected', socket.id, { reason });
-      // TODO: Handle participant disconnect in Phase 6 (User Story 6)
-    });
 
     socket.on('error', (error) => {
       logError('Socket error', error, { socketId: socket.id });

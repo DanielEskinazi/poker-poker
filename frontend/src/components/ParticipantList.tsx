@@ -44,7 +44,7 @@ export function ParticipantList({ participants, currentParticipantId }: Particip
                 ? 'bg-blue-50 border-blue-300 shadow-sm'
                 : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
             }`}
-            data-testid={`participant-${participant.participantId}`}
+            data-testid={`participant-item-${participant.name.toLowerCase()}`}
           >
             <div className="flex items-center justify-between">
               {/* Participant Info */}
@@ -80,8 +80,11 @@ export function ParticipantList({ participants, currentParticipantId }: Particip
                         participant.isConnected ? 'bg-green-500' : 'bg-gray-400'
                       }`}
                     />
-                    <span className="text-xs text-gray-500">
-                      {participant.isConnected ? 'Online' : 'Offline'}
+                    <span
+                      className="text-xs text-gray-500"
+                      data-testid={`participant-status-${participant.name.toLowerCase()}`}
+                    >
+                      {participant.isConnected ? 'online' : 'offline'}
                     </span>
                   </div>
                 </div>
@@ -93,7 +96,7 @@ export function ParticipantList({ participants, currentParticipantId }: Particip
                   <div
                     className="flex items-center justify-center w-8 h-8 bg-green-500 rounded-full"
                     title="Has voted"
-                    data-testid="voted-indicator"
+                    data-testid={`participant-voted-${participant.name.toLowerCase()}`}
                   >
                     <svg
                       className="w-5 h-5 text-white"
