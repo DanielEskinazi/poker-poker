@@ -21,3 +21,7 @@ Thumbs.db
 *.pem
 *.crx
 *.zip
+
+# Testing
+playwright-report/
+test-results/

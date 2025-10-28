@@ -52,6 +52,38 @@ class StorageService {
   }
 
   /**
+   * Save participant data (ID and name) for specific session (for reconnection)
+   */
+  saveParticipantDataForSession(sessionId: string, participantId: string, name: string): void {
+    try {
+      localStorage.setItem(`participant_${sessionId}`, JSON.stringify({ participantId, name }));
+    } catch (error) {
+      console.error('[Storage] Failed to save participant data:', error);
+    }
+  }
+
+  /**
+   * Get saved participant data for specific session
+   */
+  getParticipantDataForSession(sessionId: string): { participantId: string; name: string } | null {
+    try {
+      const data = localStorage.getItem(`participant_${sessionId}`);
+      if (!data) return null;
+
+      // Try to parse as JSON first (new format)
+      try {
+        return JSON.parse(data);
+      } catch {
+        // If parsing fails, it's the old format (just ID string)
+        return { participantId: data, name: '' };
+      }
+    } catch (error) {
+      console.error('[Storage] Failed to get participant data:', error);
+      return null;
+    }
+  }
+
+  /**
    * Remove current participant ID
    */
   removeParticipantId(): void {

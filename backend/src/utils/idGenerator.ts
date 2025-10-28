@@ -18,7 +18,7 @@ export function generateParticipantId(): string {
  * Validate session ID format
  */
 export function isValidSessionId(sessionId: string): boolean {
-  return /^[A-Za-z0-9]{8}$/.test(sessionId);
+  return /^[A-Za-z0-9_-]{8}$/.test(sessionId);
 }
 
 /**

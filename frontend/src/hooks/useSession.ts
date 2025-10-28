@@ -69,6 +69,8 @@ export function useSession() {
         // Store session data in localStorage
         storageService.saveParticipantId(result.participant.participantId);
         storageService.saveSessionId(result.sessionId);
+        storageService.saveParticipantDataForSession(result.sessionId, result.participant.participantId, result.participant.name);
+        storageService.saveRecentSession(result.sessionId);
 
         // Update local state
         setSessionData({

@@ -104,7 +104,7 @@ export function SessionPage() {
         setIsJoining(false);
 
         // Save to storage for reconnection
-        storageService.saveParticipantForSession(sessionId, data.participant.participantId);
+        storageService.saveParticipantDataForSession(sessionId, data.participant.participantId, data.participant.name);
         storageService.saveSessionId(sessionId);
         storageService.saveRecentSession(sessionId);
 
@@ -198,8 +198,8 @@ export function SessionPage() {
       return;
     }
 
-    const savedParticipantId = storageService.getParticipantForSession(sessionId);
-    if (savedParticipantId) {
+    const savedParticipantData = storageService.getParticipantDataForSession(sessionId);
+    if (savedParticipantData && savedParticipantData.name) {
       // Try to reconnect
       setIsJoining(true);
       const socket = socketService.connect();
@@ -221,7 +221,7 @@ export function SessionPage() {
 
       socket.emit('join-session', {
         sessionId,
-        name: 'Reconnecting...',
+        name: savedParticipantData.name,
         browserFingerprint: fingerprint,
       });
     }

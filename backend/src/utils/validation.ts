@@ -107,10 +107,10 @@ export function validateSessionIdFormat(sessionId: unknown): {
     return { valid: false, error: 'Session ID must be a string' };
   }
 
-  if (!/^[A-Za-z0-9]{8}$/.test(sessionId)) {
+  if (!/^[A-Za-z0-9_-]{8}$/.test(sessionId)) {
     return {
       valid: false,
-      error: 'Session ID must be exactly 8 alphanumeric characters',
+      error: 'Session ID must be exactly 8 characters (letters, numbers, hyphens, or underscores)',
     };
   }
 
