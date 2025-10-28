@@ -48,31 +48,31 @@
 
 ### Backend Foundation
 
-- [ ] **T011** Create backend/src/config/environment.ts for environment variable loading and validation
-- [ ] **T012** Create backend/src/config/constants.ts with CARD_DECK array [1,2,3,5,8,13,21,'?'], MAX_PARTICIPANTS=20, SESSION_EXPIRY_MS
-- [ ] **T013** [P] Create backend/src/models/Session.ts TypeScript interface matching data-model.md
-- [ ] **T014** [P] Create backend/src/models/Participant.ts TypeScript interface matching data-model.md
-- [ ] **T015** [P] Create backend/src/models/Vote.ts TypeScript interface matching data-model.md
-- [ ] **T016** [P] Create backend/src/utils/idGenerator.ts with nanoid wrappers for sessionId and participantId generation
-- [ ] **T017** [P] Create backend/src/utils/emojiAssigner.ts with 50+ emoji array and hash-based assignment function
-- [ ] **T018** [P] Create backend/src/utils/validation.ts with DOMPurify for name sanitization, input validation helpers
-- [ ] **T019** [P] Create backend/src/utils/logger.ts with structured logging utility (winston or pino)
-- [ ] **T020** Setup backend/src/app.ts with Express app, CORS configuration, JSON parsing middleware
-- [ ] **T021** Setup backend/src/websocket/socketServer.ts with Socket.io initialization and connection logging
-- [ ] **T022** Create backend/src/server.ts that combines HTTP server with Socket.io server
+- [X] **T011** Create backend/src/config/environment.ts for environment variable loading and validation
+- [X] **T012** Create backend/src/config/constants.ts with CARD_DECK array [1,2,3,5,8,13,21,'?'], MAX_PARTICIPANTS=20, SESSION_EXPIRY_MS
+- [X] **T013** [P] Create backend/src/models/Session.ts TypeScript interface matching data-model.md
+- [X] **T014** [P] Create backend/src/models/Participant.ts TypeScript interface matching data-model.md
+- [X] **T015** [P] Create backend/src/models/Vote.ts TypeScript interface matching data-model.md
+- [X] **T016** [P] Create backend/src/utils/idGenerator.ts with nanoid wrappers for sessionId and participantId generation
+- [X] **T017** [P] Create backend/src/utils/emojiAssigner.ts with 50+ emoji array and hash-based assignment function
+- [X] **T018** [P] Create backend/src/utils/validation.ts with DOMPurify for name sanitization, input validation helpers
+- [X] **T019** [P] Create backend/src/utils/logger.ts with structured logging utility (winston or pino)
+- [X] **T020** Setup backend/src/app.ts with Express app, CORS configuration, JSON parsing middleware
+- [X] **T021** Setup backend/src/websocket/socketServer.ts with Socket.io initialization and connection logging
+- [X] **T022** Create backend/src/server.ts that combines HTTP server with Socket.io server
 
 ### Frontend Foundation
 
-- [ ] **T023** [P] Create shared/types/Session.ts with TypeScript interfaces (shared between backend/frontend)
-- [ ] **T024** [P] Create shared/types/Participant.ts with TypeScript interfaces
-- [ ] **T025** [P] Create shared/types/Vote.ts with TypeScript interfaces
-- [ ] **T026** [P] Create shared/types/Events.ts with WebSocket event payload types
-- [ ] **T027** Create frontend/src/services/socketService.ts with Socket.io client wrapper and connection management
-- [ ] **T028** Create frontend/src/services/apiService.ts with fetch wrapper for REST API calls
-- [ ] **T029** Create frontend/src/services/storageService.ts with localStorage abstraction for participantId persistence
-- [ ] **T030** Create frontend/src/hooks/useBrowserFingerprint.ts using @fingerprintjs/fingerprintjs to generate device ID
-- [ ] **T031** Setup frontend/src/App.tsx with React Router (routes: /, /session/:sessionId)
-- [ ] **T032** Configure TailwindCSS with custom theme colors and component classes
+- [X] **T023** [P] Create shared/types/Session.ts with TypeScript interfaces (shared between backend/frontend)
+- [X] **T024** [P] Create shared/types/Participant.ts with TypeScript interfaces
+- [X] **T025** [P] Create shared/types/Vote.ts with TypeScript interfaces
+- [X] **T026** [P] Create shared/types/Events.ts with WebSocket event payload types
+- [X] **T027** Create frontend/src/services/socketService.ts with Socket.io client wrapper and connection management
+- [X] **T028** Create frontend/src/services/apiService.ts with fetch wrapper for REST API calls
+- [X] **T029** Create frontend/src/services/storageService.ts with localStorage abstraction for participantId persistence
+- [X] **T030** Create frontend/src/hooks/useBrowserFingerprint.ts using @fingerprintjs/fingerprintjs to generate device ID
+- [X] **T031** Setup frontend/src/App.tsx with React Router (routes: /, /session/:sessionId)
+- [X] **T032** Configure TailwindCSS with custom theme colors and component classes
 
 **Checkpoint**: Foundation complete - all models, utilities, and base services ready. User story implementation can now begin in parallel.
 
@@ -99,7 +99,7 @@
 - [X] **T040** [US1] Create useSession hook in frontend/src/hooks/useSession.ts (manages session state, calls create APIs)
 - [X] **T041** [US1] Implement session creation flow in HomePage (form submission → API call → redirect)
 - [X] **T042** [US1] Add clipboard copy functionality with visual feedback toast in frontend/src/utils/clipboard.ts
-- [ ] **T043** [US1] Verify contract tests T033-T035 now PASS
+- [X] **T043** [US1] Verify contract tests T033-T035 now PASS
 
 **Checkpoint**: Users can create sessions and get shareable links. Test independently before proceeding.
 
@@ -114,8 +114,8 @@
 ### Tests for User Story 2 (TDD - Write FIRST, Verify FAIL)
 
 - [X] **T044** [P] [US2] Contract test for WebSocket join-session event in backend/tests/contract/join-session.test.ts (from quickstart.md)
-- [ ] **T045** [P] [US2] Integration test for multi-user join flow in backend/tests/integration/multi-user-join.test.ts
-- [ ] **T046** [P] [US2] E2E test for join workflow in frontend/tests/e2e/join-session.spec.ts
+- [X] **T045** [P] [US2] Integration test for multi-user join flow in backend/tests/integration/multi-user-join.test.ts
+- [X] **T046** [P] [US2] E2E test for join workflow in frontend/tests/e2e/join-session.spec.ts
 
 ### Implementation for User Story 2
 
@@ -142,23 +142,23 @@
 
 ### Tests for User Story 3 (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T057** [P] [US3] Contract test for WebSocket cast-vote event in backend/tests/contract/cast-vote.test.ts (from quickstart.md)
-- [ ] **T058** [P] [US3] Integration test for voting flow in backend/tests/integration/voting-flow.test.ts
-- [ ] **T059** [P] [US3] E2E test for voting workflow in frontend/tests/e2e/voting-workflow.spec.ts
+- [X] **T057** [P] [US3] Contract test for WebSocket cast-vote event in backend/tests/contract/cast-vote.test.ts (from quickstart.md)
+- [X] **T058** [P] [US3] Integration test for voting flow in backend/tests/integration/voting-flow.test.ts
+- [X] **T059** [P] [US3] E2E test for voting workflow in frontend/tests/e2e/voting-workflow.spec.ts
 
 ### Implementation for User Story 3
 
-- [ ] **T060** [US3] Implement VotingService.castVote() in backend/src/services/VotingService.ts (validates card value, stores vote, updates session state)
-- [ ] **T061** [US3] Implement WebSocket handler for cast-vote event in backend/src/websocket/handlers/votingHandlers.ts (emits vote-accepted and vote-count-updated)
-- [ ] **T062** [US3] Implement vote count logic that broadcasts counts without revealing values (preserves privacy per FR-011)
-- [ ] **T063** [US3] Create CardDeck component in frontend/src/components/CardDeck.tsx (displays Fibonacci cards 1,2,3,5,8,13,21,?, handles selection)
-- [ ] **T064** [US3] Create VoteCounter component in frontend/src/components/VoteCounter.tsx (displays "X of Y voted" status)
-- [ ] **T065** [US3] Create useVoting hook in frontend/src/hooks/useVoting.ts (manages voting state, handles cast-vote events)
-- [ ] **T066** [US3] Integrate CardDeck and VoteCounter into SessionPage with real-time updates
-- [ ] **T067** [US3] Add visual feedback for card selection (highlighting, disabled state after voting)
-- [ ] **T068** [US3] Implement vote change functionality (click different card before reveal)
-- [ ] **T069** [US3] Update ParticipantList to show voting status indicators (checkmarks) per participant
-- [ ] **T070** [US3] Verify contract tests T057-T059 now PASS
+- [X] **T060** [US3] Implement VotingService.castVote() in backend/src/services/VotingService.ts (validates card value, stores vote, updates session state)
+- [X] **T061** [US3] Implement WebSocket handler for cast-vote event in backend/src/websocket/handlers/votingHandlers.ts (emits vote-accepted and vote-count-updated)
+- [X] **T062** [US3] Implement vote count logic that broadcasts counts without revealing values (preserves privacy per FR-011)
+- [X] **T063** [US3] Create CardDeck component in frontend/src/components/CardDeck.tsx (displays Fibonacci cards 1,2,3,5,8,13,21,?, handles selection)
+- [X] **T064** [US3] Create VoteCounter component in frontend/src/components/VoteCounter.tsx (displays "X of Y voted" status)
+- [X] **T065** [US3] Create useVoting hook in frontend/src/hooks/useVoting.ts (manages voting state, handles cast-vote events)
+- [X] **T066** [US3] Integrate CardDeck and VoteCounter into SessionPage with real-time updates
+- [X] **T067** [US3] Add visual feedback for card selection (highlighting, disabled state after voting)
+- [X] **T068** [US3] Implement vote change functionality (click different card before reveal)
+- [X] **T069** [US3] Update ParticipantList to show voting status indicators (checkmarks) per participant
+- [X] **T070** [US3] Verify contract tests T057-T059 now PASS
 
 **Checkpoint**: Users can vote and see real-time vote counts. Verify vote values remain hidden. Test with 3+ participants.
 
@@ -172,22 +172,22 @@
 
 ### Tests for User Story 4 (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T071** [P] [US4] Contract test for WebSocket reveal-votes event in backend/tests/contract/reveal-votes.test.ts (from quickstart.md)
-- [ ] **T072** [P] [US4] Integration test for reveal flow in backend/tests/integration/reveal-flow.test.ts
-- [ ] **T073** [P] [US4] E2E test for moderator reveal in frontend/tests/e2e/moderator-reveal.spec.ts
+- [X] **T071** [P] [US4] Contract test for WebSocket reveal-votes event in backend/tests/contract/reveal-votes.test.ts (from quickstart.md)
+- [X] **T072** [P] [US4] Integration test for reveal flow in backend/tests/integration/reveal-flow.test.ts
+- [X] **T073** [P] [US4] E2E test for moderator reveal in frontend/tests/e2e/moderator-reveal.spec.ts
 
 ### Implementation for User Story 4
 
-- [ ] **T074** [US4] Implement VotingService.revealVotes() in backend/src/services/VotingService.ts (marks votes as revealed, calculates statistics)
-- [ ] **T075** [US4] Implement vote statistics calculation (consensus, average, median, distribution) per data-model.md
-- [ ] **T076** [US4] Implement WebSocket handler for reveal-votes event in backend/src/websocket/handlers/votingHandlers.ts (validates moderator, broadcasts votes-revealed)
-- [ ] **T077** [US4] Implement moderator-only authorization check for reveal action
-- [ ] **T078** [US4] Create RevealedVotes component in frontend/src/components/RevealedVotes.tsx (displays all votes with names/emojis, shows statistics)
-- [ ] **T079** [US4] Create ModeratorControls component in frontend/src/components/ModeratorControls.tsx (Reveal Votes button, visible only to moderators)
-- [ ] **T080** [US4] Implement reveal votes flow in SessionPage (moderator clicks → WebSocket event → all clients update)
-- [ ] **T081** [US4] Add vote statistics display (consensus indicator, average, distribution chart)
-- [ ] **T082** [US4] Disable "Reveal Votes" button when no votes cast or already revealed
-- [ ] **T083** [US4] Verify contract tests T071-T073 now PASS
+- [X] **T074** [US4] Implement VotingService.revealVotes() in backend/src/services/VotingService.ts (marks votes as revealed, calculates statistics)
+- [X] **T075** [US4] Implement vote statistics calculation (consensus, average, median, distribution) per data-model.md
+- [X] **T076** [US4] Implement WebSocket handler for reveal-votes event in backend/src/websocket/handlers/votingHandlers.ts (validates moderator, broadcasts votes-revealed)
+- [X] **T077** [US4] Implement moderator-only authorization check for reveal action
+- [X] **T078** [US4] Create RevealedVotes component in frontend/src/components/RevealedVotes.tsx (displays all votes with names/emojis, shows statistics)
+- [X] **T079** [US4] Create ModeratorControls component in frontend/src/components/ModeratorControls.tsx (Reveal Votes button, visible only to moderators)
+- [X] **T080** [US4] Implement reveal votes flow in SessionPage (moderator clicks → WebSocket event → all clients update)
+- [X] **T081** [US4] Add vote statistics display (consensus indicator, average, distribution chart)
+- [X] **T082** [US4] Disable "Reveal Votes" button when no votes cast or already revealed
+- [X] **T083** [US4] Verify contract tests T071-T073 now PASS
 
 **Checkpoint**: Moderator can reveal votes, all participants see results instantly. Test consensus and non-consensus scenarios.
 
@@ -201,19 +201,19 @@
 
 ### Tests for User Story 5 (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T084** [P] [US5] Contract test for WebSocket reset-votes event in backend/tests/contract/reset-votes.test.ts
-- [ ] **T085** [P] [US5] Integration test for reset flow in backend/tests/integration/reset-flow.test.ts
-- [ ] **T086** [P] [US5] E2E test for complete voting cycle (vote→reveal→reset) in frontend/tests/e2e/voting-cycle.spec.ts
+- [X] **T084** [P] [US5] Contract test for WebSocket reset-votes event in backend/tests/contract/reset-votes.test.ts
+- [X] **T085** [P] [US5] Integration test for reset flow in backend/tests/integration/reset-flow.test.ts
+- [X] **T086** [P] [US5] E2E test for complete voting cycle (vote→reveal→reset) in frontend/tests/e2e/voting-cycle.spec.ts
 
 ### Implementation for User Story 5
 
-- [ ] **T087** [US5] Implement VotingService.resetVotes() in backend/src/services/VotingService.ts (archives round to voteHistory, clears current votes)
-- [ ] **T088** [US5] Implement vote history archiving with VoteRound structure per data-model.md
-- [ ] **T089** [US5] Implement WebSocket handler for reset-votes event in backend/src/websocket/handlers/votingHandlers.ts (validates moderator, broadcasts votes-reset)
-- [ ] **T090** [US5] Add "Reset Votes" button to ModeratorControls component (visible only after reveal)
-- [ ] **T091** [US5] Implement reset votes flow in SessionPage (clear vote state, unhighlight cards, reset counter)
-- [ ] **T092** [US5] Verify all participants see cleared state simultaneously
-- [ ] **T093** [US5] Verify contract tests T084-T086 now PASS
+- [X] **T087** [US5] Implement VotingService.resetVotes() in backend/src/services/VotingService.ts (archives round to voteHistory, clears current votes)
+- [X] **T088** [US5] Implement vote history archiving with VoteRound structure per data-model.md
+- [X] **T089** [US5] Implement WebSocket handler for reset-votes event in backend/src/websocket/handlers/votingHandlers.ts (validates moderator, broadcasts votes-reset)
+- [X] **T090** [US5] Add "Reset Votes" button to ModeratorControls component (visible only after reveal)
+- [X] **T091** [US5] Implement reset votes flow in SessionPage (clear vote state, unhighlight cards, reset counter)
+- [X] **T092** [US5] Verify all participants see cleared state simultaneously
+- [X] **T093** [US5] Verify contract tests T084-T086 now PASS
 
 **Checkpoint**: Moderator can reset votes and start new rounds. Test multiple consecutive rounds.
 
@@ -227,17 +227,17 @@
 
 ### Tests for User Story 6 (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T094** [P] [US6] Integration test for participant disconnect handling in backend/tests/integration/disconnect-handling.test.ts
-- [ ] **T095** [P] [US6] E2E test for participant status indicators in frontend/tests/e2e/participant-status.spec.ts
+- [X] **T094** [P] [US6] Integration test for participant disconnect handling in backend/tests/integration/disconnect-handling.test.ts
+- [X] **T095** [P] [US6] E2E test for participant status indicators in frontend/tests/e2e/participant-status.spec.ts
 
 ### Implementation for User Story 6
 
-- [ ] **T096** [US6] Implement WebSocket disconnect handler in backend/src/websocket/handlers/connectionHandlers.ts (30-second grace period, broadcast participant-left)
-- [ ] **T097** [US6] Implement participant connection status tracking in ParticipantService
-- [ ] **T098** [US6] Enhance ParticipantList component to show voting status indicators (checkmarks, colors)
-- [ ] **T099** [US6] Add real-time connection status indicators (online/offline)
-- [ ] **T100** [US6] Implement participant removal on disconnect (after grace period)
-- [ ] **T101** [US6] Verify contract tests T094-T095 now PASS
+- [X] **T096** [US6] Implement WebSocket disconnect handler in backend/src/websocket/handlers/connectionHandlers.ts (30-second grace period, broadcast participant-left)
+- [X] **T097** [US6] Implement participant connection status tracking in ParticipantService
+- [X] **T098** [US6] Enhance ParticipantList component to show voting status indicators (checkmarks, colors)
+- [X] **T099** [US6] Add real-time connection status indicators (online/offline)
+- [X] **T100** [US6] Implement participant removal on disconnect (after grace period)
+- [X] **T101** [US6] Verify contract tests T094-T095 now PASS
 
 **Checkpoint**: Participant list shows real-time voting and connection status. Test disconnect scenarios.
 
