@@ -155,10 +155,120 @@ export function broadcastAutoPromotion(
 }
 
 /**
+ * Handle toggle-spectator event
+ *
+ * Allows participants to toggle their spectator mode.
+ * Spectators can observe the session but don't vote.
+ * Broadcasts spectator-toggled event to all participants.
+ */
+export function handleToggleSpectator(socket: Socket) {
+  socket.on('toggle-spectator', async (data) => {
+    try {
+      logWebSocketEvent('toggle-spectator', socket.id, data);
+
+      const { sessionId, participantId, isSpectator } = data;
+
+      // Validate required fields
+      if (!sessionId) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Session ID is required',
+          field: 'sessionId',
+          timestamp: Date.now()
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      if (!participantId) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Participant ID is required',
+          field: 'participantId',
+          timestamp: Date.now()
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      if (typeof isSpectator !== 'boolean') {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'isSpectator must be a boolean',
+          field: 'isSpectator',
+          timestamp: Date.now()
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      // Get session
+      const session = sessionService.getSession(sessionId);
+      if (!session) {
+        const errorResponse = {
+          code: ERROR_CODES.SESSION_NOT_FOUND,
+          message: 'Session not found or has expired',
+          timestamp: Date.now()
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      // Get participant
+      const participant = session.participants.get(participantId);
+      if (!participant) {
+        const errorResponse = {
+          code: ERROR_CODES.PARTICIPANT_NOT_FOUND,
+          message: 'Participant not found in this session',
+          timestamp: Date.now()
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      // Update spectator status
+      participant.isSpectator = isSpectator;
+
+      // If switching to spectator, clear their vote
+      if (isSpectator && participant.hasVoted) {
+        session.votes.delete(participantId);
+        participant.hasVoted = false;
+        participant.currentVote = null;
+      }
+
+      session.lastActivityAt = Date.now();
+
+      // Broadcast spectator-toggled to all participants
+      const toggleEvent = {
+        participantId: participant.participantId,
+        participantName: participant.name,
+        isSpectator: participant.isSpectator,
+        timestamp: Date.now()
+      };
+
+      socket.to(sessionId).emit('spectator-toggled', toggleEvent);
+      socket.emit('spectator-toggled', toggleEvent);
+
+      logWebSocketEvent('spectator-toggled', sessionId, toggleEvent);
+
+    } catch (error) {
+      logError('Error in toggle-spectator handler', error, { socketId: socket.id, data });
+      const errorResponse = {
+        code: ERROR_CODES.SERVER_ERROR,
+        message: 'Internal server error',
+        timestamp: Date.now()
+      };
+      socket.emit('error', errorResponse);
+    }
+  });
+}
+
+/**
  * Register all moderator-related event handlers for a socket
  */
 export function registerModeratorHandlers(socket: Socket) {
   handlePromoteModerator(socket);
+  handleToggleSpectator(socket);
 }
 
 export { moderatorService };

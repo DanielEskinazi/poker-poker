@@ -39,6 +39,7 @@ export class SessionService {
       name: params.creatorName,
       emoji,
       isModerator: true,
+      isSpectator: false,
       joinTimestamp: now,
       isConnected: true,
       socketIds: new Set(),

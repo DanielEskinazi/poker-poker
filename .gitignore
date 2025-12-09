@@ -25,3 +25,5 @@ Thumbs.db
 # Testing
 playwright-report/
 test-results/
+
+.playwright-mcp/*

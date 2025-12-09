@@ -119,11 +119,14 @@ export function handleCastVote(socket: Socket) {
         hasVoted[pid] = p.hasVoted;
       });
 
+      // Get voter count (excluding spectators)
+      const voteCount = votingService.getVoteCount(session);
+
       // Broadcast vote-count-updated to all participants in session
       // IMPORTANT: Do NOT include vote values - only counts (preserves privacy)
       const voteCountUpdate = {
-        votedCount: session.votes.size,
-        totalParticipants: session.participantCount,
+        votedCount: voteCount.voted,
+        totalParticipants: voteCount.total,
         hasVoted,
         timestamp: Date.now()
       };

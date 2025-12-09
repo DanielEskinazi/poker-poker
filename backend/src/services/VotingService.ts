@@ -162,12 +162,21 @@ export class VotingService {
 
   /**
    * Get vote count (without revealing values)
+   * Excludes spectators from the total count
    */
   getVoteCount(session: Session): { voted: number; total: number } {
+    const voters = Array.from(session.participants.values()).filter(p => !p.isSpectator);
     return {
       voted: session.votes.size,
-      total: session.participantCount,
+      total: voters.length,
     };
+  }
+
+  /**
+   * Get the number of participants who can vote (non-spectators)
+   */
+  getVoterCount(session: Session): number {
+    return Array.from(session.participants.values()).filter(p => !p.isSpectator).length;
   }
 }
 

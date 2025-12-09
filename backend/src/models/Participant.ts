@@ -19,6 +19,9 @@ export interface Participant {
   /** Whether participant has moderator privileges */
   isModerator: boolean;
 
+  /** Whether participant is in spectator mode (doesn't vote) */
+  isSpectator: boolean;
+
   /** Unix timestamp (ms) when participant joined */
   joinTimestamp: number;
 
@@ -69,6 +72,7 @@ export interface ParticipantPublicData {
   name: string;
   emoji: string;
   isModerator: boolean;
+  isSpectator: boolean;
   isConnected: boolean;
   hasVoted: boolean;
 }
@@ -82,6 +86,7 @@ export function toPublicData(participant: Participant): ParticipantPublicData {
     name: participant.name,
     emoji: participant.emoji,
     isModerator: participant.isModerator,
+    isSpectator: participant.isSpectator,
     isConnected: participant.isConnected,
     hasVoted: participant.hasVoted,
   };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * CardDeck Component
@@ -16,13 +16,122 @@ interface CardDeckProps {
   selectedCard: CardValue | null;
   disabled?: boolean;
   votingState?: 'voting' | 'revealed';
+  compact?: boolean;
 }
 
-export function CardDeck({ onCardSelect, selectedCard, disabled = false, votingState = 'voting' }: CardDeckProps) {
+export function CardDeck({ onCardSelect, selectedCard, disabled = false, votingState = 'voting', compact = false }: CardDeckProps) {
   const [hoverCard, setHoverCard] = useState<CardValue | null>(null);
+  const [animatingCard, setAnimatingCard] = useState<CardValue | null>(null);
 
   const isDisabled = disabled || votingState === 'revealed';
 
+  // Trigger success animation when card is selected
+  useEffect(() => {
+    if (selectedCard !== null) {
+      setAnimatingCard(selectedCard);
+      const timer = setTimeout(() => setAnimatingCard(null), 300);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [selectedCard]);
+
+  if (compact) {
+    return (
+      <div className="w-full max-w-2xl">
+        {/* Compact Header */}
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <h3 className="text-sm font-medium text-slate-700">
+            {votingState === 'revealed' ? 'Voting Complete' : 'Select Your Estimate'}
+          </h3>
+          {selectedCard !== null && votingState === 'voting' && (
+            <span className="badge badge-primary text-xs">
+              {selectedCard}
+            </span>
+          )}
+        </div>
+
+        {/* Compact Card Grid - Single Row */}
+        <div className="flex justify-center gap-2 card-stagger">
+          {CARD_DECK.map((value) => {
+            const isSelected = selectedCard === value;
+            const isHovered = hoverCard === value;
+
+            return (
+              <button
+                key={value}
+                onClick={() => !isDisabled && onCardSelect(value)}
+                onMouseEnter={() => !isDisabled && setHoverCard(value)}
+                onMouseLeave={() => setHoverCard(null)}
+                disabled={isDisabled}
+                className={`
+                  group relative
+                  w-12 h-16 sm:w-14 sm:h-20
+                  rounded-lg
+                  flex flex-col items-center justify-center
+                  transition-all duration-200
+                  border-2
+                  ${isDisabled
+                    ? 'cursor-not-allowed opacity-50'
+                    : 'cursor-pointer hover:-translate-y-1 hover:shadow-card-hover'
+                  }
+                  ${isSelected
+                    ? 'bg-primary-50 border-primary-500 shadow-md -translate-y-1'
+                    : isHovered
+                      ? 'bg-slate-50 border-slate-300'
+                      : 'bg-white border-slate-200 hover:border-slate-300'
+                  }
+                  ${isDisabled ? '' : 'active:scale-95'}
+                  ${animatingCard === value ? 'animate-vote-success' : ''}
+                `}
+                aria-label={`Vote ${value}`}
+                aria-pressed={isSelected}
+                data-testid={`card-${value}`}
+              >
+                <span
+                  className={`
+                    font-semibold transition-all duration-200
+                    ${value === '?' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'}
+                    ${isSelected
+                      ? 'text-primary-600'
+                      : 'text-slate-700 group-hover:text-slate-900'
+                    }
+                  `}
+                >
+                  {value}
+                </span>
+
+                {isSelected && !isDisabled && (
+                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary-500 flex items-center justify-center animate-scale-in">
+                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Compact Instructions */}
+        {!isDisabled && (
+          <p className="mt-3 text-center text-xs text-slate-400">
+            {selectedCard ? 'Click another card to change' : 'Click a card to vote'}
+          </p>
+        )}
+
+        {votingState === 'revealed' && (
+          <div className="mt-3 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md bg-slate-100 text-slate-500">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span className="text-xs font-medium">Waiting for new round</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Original full-size layout
   return (
     <div className="w-full">
       {/* Header */}
@@ -72,6 +181,7 @@ export function CardDeck({ onCardSelect, selectedCard, disabled = false, votingS
                     : 'bg-white border-slate-200 hover:border-slate-300'
                 }
                 ${isDisabled ? '' : 'active:scale-95'}
+                ${animatingCard === value ? 'animate-vote-success' : ''}
               `}
               aria-label={`Vote ${value}`}
               aria-pressed={isSelected}

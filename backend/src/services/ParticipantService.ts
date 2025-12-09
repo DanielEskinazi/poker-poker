@@ -51,6 +51,7 @@ export class ParticipantService {
       name: params.name,
       emoji,
       isModerator: false,
+      isSpectator: false,
       joinTimestamp: Date.now(),
       isConnected: true,
       socketIds: new Set([params.socketId]),

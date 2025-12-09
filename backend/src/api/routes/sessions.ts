@@ -197,7 +197,9 @@ router.get('/sessions/:sessionId/participants', async (req: Request, res: Respon
       name: p.name,
       emoji: p.emoji,
       isModerator: p.isModerator,
+      isSpectator: p.isSpectator,
       isConnected: p.isConnected,
+      hasVoted: p.hasVoted,
       joinedAt: p.joinTimestamp
     }));
 
