@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { socketService } from '../services/socketService';
 import { storageService } from '../services/storageService';
+import { apiService } from '../services/apiService';
 import { CardDeck } from './CardDeck';
 import { useVoting } from '../hooks/useVoting';
 
@@ -57,6 +58,7 @@ export function SessionPage() {
   const [showParticipantsPanel, setShowParticipantsPanel] = useState(false);
   const [sessionExpiryWarning, setSessionExpiryWarning] = useState<number | null>(null); // minutes remaining
   const [showExpiredModal, setShowExpiredModal] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Initialize voting hook
   const voting = useVoting({
@@ -112,6 +114,24 @@ export function SessionPage() {
       newSpectatorState ? 'Switched to spectator mode' : 'Switched to voter mode',
       'info'
     );
+  };
+
+  const handleExportSession = async () => {
+    if (!sessionId || !currentParticipant?.participantId || isExporting) return;
+
+    setIsExporting(true);
+    try {
+      await apiService.downloadFile(
+        `/api/sessions/${sessionId}/export?participantId=${currentParticipant.participantId}`,
+        `planning-poker-session-${sessionId}.xlsx`
+      );
+      showToast('Session exported successfully', 'success');
+    } catch (err) {
+      console.error('[SessionPage] Export failed:', err);
+      showToast('Failed to export session', 'error');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleJoinSession = async () => {
@@ -787,6 +807,32 @@ export function SessionPage() {
                       </svg>
                       Reset
                       <kbd className="hidden sm:inline-flex ml-1 px-1 py-0.5 text-[9px] font-mono bg-slate-200 rounded">{KEYBOARD_SHORTCUTS.RESET.toUpperCase()}</kbd>
+                    </button>
+                    <button
+                      onClick={handleExportSession}
+                      disabled={isExporting}
+                      className={`
+                        px-3 py-1.5 rounded-md text-xs font-medium
+                        transition-all flex items-center gap-1.5 border
+                        ${isExporting
+                          ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
+                          : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
+                        }
+                      `}
+                      data-testid="export-session-btn"
+                      title="Export session to Excel"
+                    >
+                      {isExporting ? (
+                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                      )}
+                      {isExporting ? 'Exporting...' : 'Export'}
                     </button>
                   </div>
                 )}

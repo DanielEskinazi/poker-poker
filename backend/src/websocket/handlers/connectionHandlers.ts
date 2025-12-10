@@ -36,6 +36,14 @@ export function getDisconnectGracePeriod(): number {
 }
 
 /**
+ * Clear all pending disconnect timers (useful for testing)
+ */
+export function clearAllDisconnectTimers(): void {
+  disconnectTimers.forEach((timer) => clearTimeout(timer));
+  disconnectTimers.clear();
+}
+
+/**
  * Handle participant disconnect
  *
  * Implements 30-second grace period before removing participant from session.
