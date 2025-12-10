@@ -40,7 +40,7 @@ describe('Integration: Participant Disconnect Handling', () => {
     });
 
     // Clear any existing sessions
-    sessionService['sessions'].clear();
+    sessionService.clearAllSessions();
   });
 
   afterEach(async () => {

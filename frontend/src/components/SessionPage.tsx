@@ -55,6 +55,8 @@ export function SessionPage() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [copiedSessionId, setCopiedSessionId] = useState(false);
   const [showParticipantsPanel, setShowParticipantsPanel] = useState(false);
+  const [sessionExpiryWarning, setSessionExpiryWarning] = useState<number | null>(null); // minutes remaining
+  const [showExpiredModal, setShowExpiredModal] = useState(false);
 
   // Initialize voting hook
   const voting = useVoting({
@@ -213,10 +215,18 @@ export function SessionPage() {
       fetchParticipants();
     };
 
+    // Handle session expiring warning
+    const handleSessionExpiring = (data: any) => {
+      console.log('[SessionPage] Session expiring:', data);
+      setSessionExpiryWarning(data.minutesRemaining);
+      showToast(`Session expires in ${data.minutesRemaining} minutes`, 'error');
+    };
+
     // Handle session expired
     const handleSessionExpired = () => {
-      showToast('Session has expired', 'error');
-      setTimeout(() => navigate('/'), 3000);
+      console.log('[SessionPage] Session expired');
+      setShowExpiredModal(true);
+      setSessionExpiryWarning(null);
     };
 
     // Handle moderator promoted
@@ -253,6 +263,7 @@ export function SessionPage() {
 
     socket.on('participant-joined', handleParticipantJoined);
     socket.on('participant-left', handleParticipantLeft);
+    socket.on('session-expiring', handleSessionExpiring);
     socket.on('session-expired', handleSessionExpired);
     socket.on('moderator-promoted', handleModeratorPromoted);
     socket.on('spectator-toggled', handleSpectatorToggled);
@@ -260,6 +271,7 @@ export function SessionPage() {
     return () => {
       socket.off('participant-joined', handleParticipantJoined);
       socket.off('participant-left', handleParticipantLeft);
+      socket.off('session-expiring', handleSessionExpiring);
       socket.off('session-expired', handleSessionExpired);
       socket.off('moderator-promoted', handleModeratorPromoted);
       socket.off('spectator-toggled', handleSpectatorToggled);
@@ -364,6 +376,52 @@ export function SessionPage() {
           </div>
         ))}
       </div>
+
+      {/* Session Expiry Warning Banner */}
+      {sessionExpiryWarning !== null && (
+        <div className="fixed top-0 left-0 right-0 z-40 bg-warning-500 text-white px-4 py-2 text-center animate-fade-in">
+          <div className="flex items-center justify-center gap-2 text-sm font-medium">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            <span>Session will expire in {sessionExpiryWarning} minute{sessionExpiryWarning !== 1 ? 's' : ''} due to inactivity</span>
+            <button
+              onClick={() => setSessionExpiryWarning(null)}
+              className="ml-2 p-1 hover:bg-warning-600 rounded transition-colors"
+              aria-label="Dismiss warning"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Session Expired Modal */}
+      {showExpiredModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-4 animate-slide-up">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-error-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-error-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold text-slate-900 mb-2">Session Expired</h2>
+              <p className="text-sm text-slate-600 mb-6">
+                This session has expired due to inactivity. Please create a new session to continue.
+              </p>
+              <button
+                onClick={() => navigate('/')}
+                className="w-full py-2.5 px-4 bg-primary-500 text-white rounded-lg font-medium hover:bg-primary-600 transition-colors"
+              >
+                Create New Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Compact Header */}
       <header className="flex-shrink-0 bg-white border-b border-slate-200 px-4 py-2">

@@ -16,8 +16,24 @@ import { logWebSocketEvent, logError } from '../../utils/logger.js';
 // Track disconnect timers for grace period
 const disconnectTimers = new Map<string, NodeJS.Timeout>();
 
-// Grace period before removing participant (30 seconds)
-const DISCONNECT_GRACE_PERIOD_MS = 30000;
+// Grace period before removing participant (30 seconds, or configurable for testing)
+let DISCONNECT_GRACE_PERIOD_MS = process.env.DISCONNECT_GRACE_PERIOD_MS
+  ? parseInt(process.env.DISCONNECT_GRACE_PERIOD_MS, 10)
+  : 30000;
+
+/**
+ * Set the disconnect grace period (useful for testing)
+ */
+export function setDisconnectGracePeriod(ms: number) {
+  DISCONNECT_GRACE_PERIOD_MS = ms;
+}
+
+/**
+ * Get the current disconnect grace period
+ */
+export function getDisconnectGracePeriod(): number {
+  return DISCONNECT_GRACE_PERIOD_MS;
+}
 
 /**
  * Handle participant disconnect

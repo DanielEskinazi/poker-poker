@@ -149,12 +149,16 @@ describe('Integration: Moderator Succession', () => {
   });
 
   it('should give newly promoted moderator full moderator privileges', async () => {
-    // Wait for auto-promotion
-    await new Promise<void>((resolve) => {
+    // Set up listener BEFORE disconnect
+    const autoPromotionPromise = new Promise<void>((resolve) => {
       participant1Socket.once('moderator-promoted', () => resolve());
     });
 
+    // Disconnect moderator to trigger auto-promotion
     moderatorSocket.disconnect();
+
+    // Wait for auto-promotion event
+    await autoPromotionPromise;
     await new Promise(resolve => setTimeout(resolve, 200));
 
     // Alice (participant1) should now be able to perform moderator actions
@@ -258,12 +262,16 @@ describe('Integration: Moderator Succession', () => {
   });
 
   it('should allow auto-promoted moderator to manually promote others', async () => {
-    // Wait for auto-promotion of participant1
-    await new Promise<void>((resolve) => {
+    // Set up listener BEFORE disconnect
+    const autoPromotionPromise = new Promise<void>((resolve) => {
       participant1Socket.once('moderator-promoted', () => resolve());
     });
 
+    // Disconnect moderator to trigger auto-promotion
     moderatorSocket.disconnect();
+
+    // Wait for auto-promotion
+    await autoPromotionPromise;
     await new Promise(resolve => setTimeout(resolve, 200));
 
     // Participant1 (Alice, now auto-promoted moderator) manually promotes participant3 (Charlie)
@@ -345,12 +353,16 @@ describe('Integration: Moderator Succession', () => {
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Wait for auto-promotion
-    await new Promise<void>((resolve) => {
+    // Set up listener BEFORE disconnect
+    const autoPromotionPromise = new Promise<void>((resolve) => {
       participant1Socket.once('moderator-promoted', () => resolve());
     });
 
+    // Disconnect moderator to trigger auto-promotion
     moderatorSocket.disconnect();
+
+    // Wait for auto-promotion
+    await autoPromotionPromise;
     await new Promise(resolve => setTimeout(resolve, 200));
 
     // Verify votes are still intact and can be revealed by new moderator

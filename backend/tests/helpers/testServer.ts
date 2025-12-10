@@ -11,7 +11,10 @@ import cors from 'cors';
 import { registerSessionHandlers } from '../../src/websocket/handlers/sessionHandlers.js';
 import { registerVotingHandlers } from '../../src/websocket/handlers/votingHandlers.js';
 import { registerModeratorHandlers } from '../../src/websocket/handlers/moderatorHandlers.js';
-import { registerConnectionHandlers } from '../../src/websocket/handlers/connectionHandlers.js';
+import { registerConnectionHandlers, setDisconnectGracePeriod } from '../../src/websocket/handlers/connectionHandlers.js';
+
+// Use a short grace period for tests (100ms instead of 30 seconds)
+setDisconnectGracePeriod(100);
 
 export interface TestServer {
   httpServer: ReturnType<typeof createServer>;

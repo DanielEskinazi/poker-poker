@@ -106,6 +106,13 @@ export class SessionService {
   getStats() {
     return this.sessionCache.getStats();
   }
+
+  /**
+   * Clear all sessions (for testing purposes only)
+   */
+  clearAllSessions(): void {
+    this.sessionCache.flushAll();
+  }
 }
 
 // Export singleton instance

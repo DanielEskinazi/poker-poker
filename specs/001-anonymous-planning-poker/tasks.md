@@ -249,19 +249,19 @@
 
 ### Tests (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T102** [P] Contract test for WebSocket promote-moderator event in backend/tests/contract/promote-moderator.test.ts
-- [ ] **T103** [P] Integration test for moderator auto-promotion in backend/tests/integration/moderator-succession.test.ts (from quickstart.md)
+- [X] **T102** [P] Contract test for WebSocket promote-moderator event in backend/tests/contract/promote-moderator.test.ts
+- [X] **T103** [P] Integration test for moderator auto-promotion in backend/tests/integration/moderator-succession.test.ts (from quickstart.md)
 
 ### Implementation
 
-- [ ] **T104** Implement ModeratorService.promoteModerator() in backend/src/services/ModeratorService.ts (manual promotion by existing moderator)
-- [ ] **T105** Implement ModeratorService.autoPromoteNextModerator() in backend/src/services/ModeratorService.ts (FIFO algorithm per data-model.md)
-- [ ] **T106** Implement WebSocket handler for promote-moderator event in backend/src/websocket/handlers/moderatorHandlers.ts
-- [ ] **T107** Integrate auto-promotion logic into disconnect handler (trigger after grace period if last moderator leaves)
-- [ ] **T108** Add "Promote to Moderator" button in ParticipantList (visible only to moderators)
-- [ ] **T109** Implement moderator promotion notifications (toast messages for all participants)
-- [ ] **T110** Update UI to support multiple simultaneous moderators (multiple badges)
-- [ ] **T111** Verify contract tests T102-T103 now PASS
+- [X] **T104** Implement ModeratorService.promoteModerator() in backend/src/services/ModeratorService.ts (manual promotion by existing moderator)
+- [X] **T105** Implement ModeratorService.autoPromoteNextModerator() in backend/src/services/ModeratorService.ts (FIFO algorithm per data-model.md)
+- [X] **T106** Implement WebSocket handler for promote-moderator event in backend/src/websocket/handlers/moderatorHandlers.ts
+- [X] **T107** Integrate auto-promotion logic into disconnect handler (trigger after grace period if last moderator leaves)
+- [X] **T108** Add "Promote to Moderator" button in ParticipantList (visible only to moderators)
+- [X] **T109** Implement moderator promotion notifications (toast messages for all participants)
+- [X] **T110** Update UI to support multiple simultaneous moderators (multiple badges)
+- [X] **T111** Verify contract tests T102-T103 now PASS
 
 **Checkpoint**: Moderator promotion (manual and automatic) works correctly. Test with multiple moderators.
 
@@ -273,20 +273,20 @@
 
 ### Tests (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T112** [P] Integration test for session expiration in backend/tests/integration/session-expiration.test.ts (from quickstart.md)
-- [ ] **T113** [P] Unit test for cleanup job in backend/tests/unit/cleanup-service.test.ts
+- [X] **T112** [P] Integration test for session expiration in backend/tests/integration/session-expiration.test.ts (from quickstart.md)
+- [X] **T113** [P] Unit test for cleanup job in backend/tests/unit/cleanup-service.test.ts
 
 ### Implementation
 
-- [ ] **T114** Implement CleanupService in backend/src/services/CleanupService.ts (background job runs every 5 minutes)
-- [ ] **T115** Implement session expiration logic (check lastActivityAt + 1 hour)
-- [ ] **T116** Implement session-expiring warning (sent 5 minutes before expiration)
-- [ ] **T117** Implement session-expired event broadcast to all participants
-- [ ] **T118** Integrate CleanupService into server.ts with cron schedule
-- [ ] **T119** Update all session operations to update lastActivityAt timestamp
-- [ ] **T120** Add session expiry warning banner in frontend SessionPage
-- [ ] **T121** Add session expired modal with "Create New Session" button
-- [ ] **T122** Verify contract tests T112-T113 now PASS
+- [X] **T114** Implement CleanupService in backend/src/services/CleanupService.ts (background job runs every 5 minutes)
+- [X] **T115** Implement session expiration logic (check lastActivityAt + 1 hour)
+- [X] **T116** Implement session-expiring warning (sent 5 minutes before expiration)
+- [X] **T117** Implement session-expired event broadcast to all participants
+- [X] **T118** Integrate CleanupService into server.ts with cron schedule
+- [X] **T119** Update all session operations to update lastActivityAt timestamp
+- [X] **T120** Add session expiry warning banner in frontend SessionPage
+- [X] **T121** Add session expired modal with "Create New Session" button
+- [X] **T122** Verify contract tests T112-T113 now PASS
 
 **Checkpoint**: Sessions expire after 1 hour of inactivity. Test with mock time advancement.
 
