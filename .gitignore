@@ -26,4 +26,5 @@ Thumbs.db
 playwright-report/
 test-results/
 
-.playwright-mcp/*
+.playwright-mcp/
+.vite/
