@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { io as Client, Socket as ClientSocket } from 'socket.io-client';
 import { createServer, Server as HTTPServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { createSocketServer } from '../../src/websocket/socketServer.js';
 import { sessionService } from '../../src/services/SessionService.js';
+import { clearAllDisconnectTimers, setDisconnectGracePeriod } from '../../src/websocket/handlers/connectionHandlers.js';
 
 /**
  * Integration Test: Participant Disconnect Handling
@@ -30,6 +31,11 @@ describe('Integration: Participant Disconnect Handling', () => {
   const serverUrl = `http://localhost:${serverPort}`;
 
   beforeEach(async () => {
+    // Clear any pending disconnect timers from previous tests
+    clearAllDisconnectTimers();
+    // Set a short grace period for faster tests (100ms)
+    setDisconnectGracePeriod(100);
+
     // Create HTTP and Socket.io servers
     httpServer = createServer();
     io = createSocketServer(httpServer);
@@ -44,22 +50,35 @@ describe('Integration: Participant Disconnect Handling', () => {
   });
 
   afterEach(async () => {
+    // Clear disconnect timers before disconnecting sockets
+    clearAllDisconnectTimers();
+
     // Disconnect all clients
     if (client1?.connected) client1.disconnect();
     if (client2?.connected) client2.disconnect();
     if (client3?.connected) client3.disconnect();
+
+    // Clear timers again after disconnect
+    clearAllDisconnectTimers();
+
+    // Wait for disconnect events to process
+    await new Promise(resolve => setTimeout(resolve, 150));
 
     // Close server
     io.close();
     await new Promise<void>((resolve) => {
       httpServer.close(() => resolve());
     });
+
+    // Final cleanup
+    clearAllDisconnectTimers();
+    sessionService.clearAllSessions();
   });
 
   it('should broadcast participant-left event after disconnect', async () => {
     // Create a session
-    const session = sessionService.createSession('Alice', 'fp_alice');
-    const sessionId = session.sessionId;
+    const result = sessionService.createSession({ creatorName: 'Alice', browserFingerprint: 'fp_alice' });
+    const sessionId = result.session.sessionId;
 
     // Connect first client (Alice - moderator)
     client1 = Client(serverUrl, { transports: ['websocket'] });
@@ -119,12 +138,9 @@ describe('Integration: Participant Disconnect Handling', () => {
   });
 
   it('should remove participant from session after disconnect grace period', async () => {
-    // Use fake timers for testing grace period
-    vi.useFakeTimers();
-
     // Create a session
-    const session = sessionService.createSession('Alice', 'fp_alice');
-    const sessionId = session.sessionId;
+    const result = sessionService.createSession({ creatorName: 'Alice', browserFingerprint: 'fp_alice' });
+    const sessionId = result.session.sessionId;
 
     // Connect and join first client (Alice)
     client1 = Client(serverUrl, { transports: ['websocket'] });
@@ -169,20 +185,18 @@ describe('Integration: Participant Disconnect Handling', () => {
     // Disconnect Bob
     client2.disconnect();
 
-    // Fast-forward past grace period (30 seconds)
-    await vi.advanceTimersByTimeAsync(31000);
+    // Wait for grace period (100ms set in beforeEach) plus buffer
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     // Verify Bob has been removed from session
     const sessionAfter = sessionService.getSession(sessionId);
     expect(sessionAfter?.participants.has(bobParticipantId)).toBe(false);
-
-    vi.useRealTimers();
   });
 
   it('should auto-promote next participant when last moderator disconnects', async () => {
     // Create a session
-    const session = sessionService.createSession('Alice', 'fp_alice');
-    const sessionId = session.sessionId;
+    const result = sessionService.createSession({ creatorName: 'Alice', browserFingerprint: 'fp_alice' });
+    const sessionId = result.session.sessionId;
 
     // Connect first client (Alice - moderator)
     client1 = Client(serverUrl, { transports: ['websocket'] });
@@ -227,8 +241,8 @@ describe('Integration: Participant Disconnect Handling', () => {
     // Listen for moderator-promoted event on Bob's client
     const moderatorPromotedPromise = new Promise<void>((resolve) => {
       client2.once('moderator-promoted', (data) => {
-        expect(data.participant.participantId).toBe(bobParticipantId);
-        expect(data.reason).toBe('auto-succession');
+        expect(data.participantId).toBe(bobParticipantId);
+        expect(data.promotionType).toBe('auto');
         resolve();
       });
     });
@@ -245,12 +259,11 @@ describe('Integration: Participant Disconnect Handling', () => {
   });
 
   it('should handle reconnection within grace period', async () => {
-    // Use fake timers for testing grace period
-    vi.useFakeTimers();
-
+    // Grace period is 100ms set in beforeEach
     // Create a session
-    const session = sessionService.createSession('Alice', 'fp_alice');
-    const sessionId = session.sessionId;
+    const result = sessionService.createSession({ creatorName: 'Alice', browserFingerprint: 'fp_alice' });
+    const sessionId = result.session.sessionId;
+    const aliceParticipantId = result.participant.participantId;
 
     // Connect and join first client (Alice)
     client1 = Client(serverUrl, { transports: ['websocket'] });
@@ -264,19 +277,15 @@ describe('Integration: Participant Disconnect Handling', () => {
       browserFingerprint: 'fp_alice',
     });
 
-    let aliceParticipantId = '';
     await new Promise<void>((resolve) => {
-      client1.once('join-accepted', (data) => {
-        aliceParticipantId = data.participant.participantId;
-        resolve();
-      });
+      client1.once('join-accepted', () => resolve());
     });
 
     // Disconnect Alice
     client1.disconnect();
 
-    // Wait 10 seconds (within 30-second grace period)
-    await vi.advanceTimersByTimeAsync(10000);
+    // Wait briefly but within grace period (100ms)
+    await new Promise(resolve => setTimeout(resolve, 30));
 
     // Reconnect Alice with same fingerprint
     client1 = Client(serverUrl, { transports: ['websocket'] });
@@ -301,7 +310,5 @@ describe('Integration: Participant Disconnect Handling', () => {
     // Verify Alice is still in the session
     const sessionAfter = sessionService.getSession(sessionId);
     expect(sessionAfter?.participants.has(aliceParticipantId)).toBe(true);
-
-    vi.useRealTimers();
   });
 });

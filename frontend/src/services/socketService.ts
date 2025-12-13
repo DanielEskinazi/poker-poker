@@ -1,6 +1,16 @@
 import { io, Socket } from 'socket.io-client';
 
 /**
+ * Reconnection state for UI updates
+ */
+export type ReconnectionState = 'connected' | 'disconnected' | 'reconnecting' | 'failed';
+
+/**
+ * Callback type for reconnection state changes
+ */
+export type ReconnectionCallback = (state: ReconnectionState, attemptNumber?: number) => void;
+
+/**
  * SocketService
  *
  * Wrapper around Socket.io client for WebSocket communication.
@@ -9,6 +19,8 @@ import { io, Socket } from 'socket.io-client';
 class SocketService {
   private socket: Socket | null = null;
   private serverUrl: string;
+  private reconnectionCallbacks: Set<ReconnectionCallback> = new Set();
+  private reconnectionState: ReconnectionState = 'disconnected';
 
   constructor() {
     this.serverUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -33,17 +45,63 @@ class SocketService {
 
     this.socket.on('connect', () => {
       console.log('[Socket] Connected:', this.socket?.id);
+      this.setReconnectionState('connected');
     });
 
     this.socket.on('disconnect', (reason) => {
       console.log('[Socket] Disconnected:', reason);
+      this.setReconnectionState('disconnected');
     });
 
     this.socket.on('connect_error', (error) => {
       console.error('[Socket] Connection error:', error);
     });
 
+    // Reconnection events
+    this.socket.io.on('reconnect_attempt', (attemptNumber) => {
+      console.log('[Socket] Reconnection attempt:', attemptNumber);
+      this.setReconnectionState('reconnecting', attemptNumber);
+    });
+
+    this.socket.io.on('reconnect', (attemptNumber) => {
+      console.log('[Socket] Reconnected after', attemptNumber, 'attempts');
+      this.setReconnectionState('connected');
+    });
+
+    this.socket.io.on('reconnect_failed', () => {
+      console.error('[Socket] Reconnection failed after all attempts');
+      this.setReconnectionState('failed');
+    });
+
     return this.socket;
+  }
+
+  /**
+   * Set reconnection state and notify callbacks
+   */
+  private setReconnectionState(state: ReconnectionState, attemptNumber?: number): void {
+    this.reconnectionState = state;
+    this.reconnectionCallbacks.forEach(callback => callback(state, attemptNumber));
+  }
+
+  /**
+   * Subscribe to reconnection state changes
+   */
+  onReconnectionStateChange(callback: ReconnectionCallback): () => void {
+    this.reconnectionCallbacks.add(callback);
+    // Immediately call with current state
+    callback(this.reconnectionState);
+    // Return unsubscribe function
+    return () => {
+      this.reconnectionCallbacks.delete(callback);
+    };
+  }
+
+  /**
+   * Get current reconnection state
+   */
+  getReconnectionState(): ReconnectionState {
+    return this.reconnectionState;
   }
 
   /**

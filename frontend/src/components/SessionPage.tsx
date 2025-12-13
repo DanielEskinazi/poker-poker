@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { socketService } from '../services/socketService';
 import { storageService } from '../services/storageService';
 import { apiService } from '../services/apiService';
 import { CardDeck } from './CardDeck';
 import { useVoting } from '../hooks/useVoting';
+import { useReconnection } from '../hooks/useReconnection';
+import { ReconnectionBanner } from './ReconnectionBanner';
 
 /**
  * SessionPage Component
@@ -68,14 +70,43 @@ export function SessionPage() {
   });
 
   // Generate or retrieve browser fingerprint
-  const getBrowserFingerprint = (): string => {
+  const getBrowserFingerprint = useCallback((): string => {
     let fingerprint = storageService.getBrowserFingerprint();
     if (!fingerprint) {
       fingerprint = `fp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       storageService.saveBrowserFingerprint(fingerprint);
     }
     return fingerprint;
-  };
+  }, []);
+
+  // Handle reconnection callback
+  const handleReconnected = useCallback(() => {
+    if (sessionId && !isJoined) {
+      // Try to rejoin with saved participant data
+      const savedData = storageService.getParticipantDataForSession(sessionId);
+      if (savedData?.name) {
+        setName(savedData.name);
+        // Trigger rejoin automatically
+        const fingerprint = getBrowserFingerprint();
+        const socket = socketService.getSocket();
+        if (socket) {
+          socket.emit('join-session', {
+            sessionId,
+            name: savedData.name,
+            browserFingerprint: fingerprint,
+          });
+        }
+      }
+    }
+  }, [sessionId, isJoined, getBrowserFingerprint]);
+
+  // Initialize reconnection hook
+  const {
+    isReconnecting,
+    isConnectionFailed,
+    attemptNumber,
+    retryConnection,
+  } = useReconnection(sessionId, handleReconnected);
 
   const showToast = (message: string, type: ToastMessage['type'] = 'info') => {
     const id = `toast_${Date.now()}`;
@@ -361,6 +392,14 @@ export function SessionPage() {
 
   return (
     <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
+      {/* Reconnection Banner */}
+      <ReconnectionBanner
+        isReconnecting={isReconnecting}
+        isConnectionFailed={isConnectionFailed}
+        attemptNumber={attemptNumber}
+        onRetry={retryConnection}
+      />
+
       {/* Toast Notifications - Accessible */}
       <div className="fixed top-3 right-3 z-50 space-y-2" aria-live="polite" aria-atomic="false">
         {toasts.map((toast) => (

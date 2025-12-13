@@ -17,6 +17,8 @@ import { io as ioClient, Socket as ClientSocket } from 'socket.io-client';
 import { createTestServer } from '../helpers/testServer';
 import type { Server } from 'http';
 import type { Server as SocketIOServer } from 'socket.io';
+import { sessionService } from '../../src/services/SessionService.js';
+import { clearAllDisconnectTimers, setDisconnectGracePeriod } from '../../src/websocket/handlers/connectionHandlers.js';
 
 describe('Contract: join-session WebSocket Event', () => {
   let httpServer: Server;
@@ -26,6 +28,12 @@ describe('Contract: join-session WebSocket Event', () => {
   let joinerSocket: ClientSocket;
 
   beforeEach(async () => {
+    // Clear any pending disconnect timers
+    clearAllDisconnectTimers();
+    // Set longer grace period for reconnection test (5 seconds)
+    setDisconnectGracePeriod(5000);
+    sessionService.clearAllSessions();
+
     const testServer = await createTestServer();
     httpServer = testServer.httpServer;
     ioServer = testServer.ioServer;
@@ -33,17 +41,31 @@ describe('Contract: join-session WebSocket Event', () => {
   });
 
   afterEach(async () => {
+    // Clear disconnect timers
+    clearAllDisconnectTimers();
+
     if (creatorSocket?.connected) {
       creatorSocket.disconnect();
     }
     if (joinerSocket?.connected) {
       joinerSocket.disconnect();
     }
+
+    clearAllDisconnectTimers();
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    if (ioServer) {
+      ioServer.close();
+    }
+
     if (httpServer) {
       await new Promise<void>((resolve) => {
         httpServer.close(() => resolve());
       });
     }
+
+    clearAllDisconnectTimers();
+    sessionService.clearAllSessions();
   });
 
   describe('Successful Join Flow', () => {

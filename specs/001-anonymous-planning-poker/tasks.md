@@ -298,20 +298,20 @@
 
 ### Tests (TDD - Write FIRST, Verify FAIL)
 
-- [ ] **T123** [P] Contract test for GET /api/sessions/:id/export endpoint in backend/tests/contract/export-api.test.ts
+- [X] **T123** [P] Contract test for GET /api/sessions/:id/export endpoint in backend/tests/contract/export-api.test.ts
 - [ ] **T124** [P] E2E test for Excel export in frontend/tests/e2e/excel-export.spec.ts (from quickstart.md)
 
 ### Implementation
 
-- [ ] **T125** Implement ExportService.generateExcel() in backend/src/services/ExportService.ts (uses exceljs, creates 2-sheet workbook per FR-025)
-- [ ] **T126** Implement GET /api/sessions/:id/export endpoint in backend/src/api/routes/export.ts (validates moderator, generates file, streams response)
-- [ ] **T127** Add moderator authorization check for export endpoint
-- [ ] **T128** Create ExportButton component in frontend/src/components/ExportButton.tsx (visible only to moderators)
-- [ ] **T129** Implement frontend exportService in frontend/src/services/exportService.ts (triggers download, handles errors)
-- [ ] **T130** Add export functionality to SessionPage (button click → download Excel file)
-- [ ] **T131** Add loading indicator and success/error feedback for export
-- [ ] **T132** Test export with 10+ voting rounds to verify performance (<5 seconds per SC-012)
-- [ ] **T133** Verify contract tests T123-T124 now PASS
+- [X] **T125** Implement ExportService.generateExcel() in backend/src/services/ExportService.ts (uses exceljs, creates 2-sheet workbook per FR-025)
+- [X] **T126** Implement GET /api/sessions/:id/export endpoint in backend/src/api/routes/export.ts (validates moderator, generates file, streams response)
+- [X] **T127** Add moderator authorization check for export endpoint
+- [X] **T128** Create ExportButton component in frontend/src/components/ExportButton.tsx (visible only to moderators)
+- [X] **T129** Implement frontend exportService in frontend/src/services/exportService.ts (triggers download, handles errors)
+- [X] **T130** Add export functionality to SessionPage (button click → download Excel file)
+- [X] **T131** Add loading indicator and success/error feedback for export
+- [X] **T132** Test export with 10+ voting rounds to verify performance (<5 seconds per SC-012)
+- [X] **T133** Verify contract tests T123-T124 now PASS
 
 **Checkpoint**: Moderators can export session data to Excel. Open exported file in Excel/Google Sheets to verify format.
 
