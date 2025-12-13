@@ -1,0 +1,29 @@
+/logs
+.env
+.claude/data/sessions/
+
+# Node.js / JavaScript
+node_modules/
+dist/
+build/
+*.log
+.env*
+
+# IDE / Editor
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+# Chrome Extension Development
+*.pem
+*.crx
+*.zip
+
+# Testing
+playwright-report/
+test-results/
+
+.playwright-mcp/*
