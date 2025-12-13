@@ -12,9 +12,26 @@ export function createApp() {
   const app = express();
 
   // CORS configuration
+  // In development, accept any localhost origin to support different ports
+  const corsOrigin = env.NODE_ENV === 'development'
+    ? (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+        // Allow any localhost origin in development
+        if (origin.match(/^https?:\/\/localhost(:\d+)?$/)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      }
+    : env.CORS_ORIGIN;
+
   app.use(
     cors({
-      origin: env.CORS_ORIGIN,
+      origin: corsOrigin,
       credentials: true,
     })
   );

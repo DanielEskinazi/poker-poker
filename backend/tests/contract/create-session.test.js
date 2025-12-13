@@ -41,7 +41,7 @@ describe('POST /api/sessions - Contract Test', () => {
                 .expect(201);
             // Verify response structure matches contract
             expect(response.body).toMatchObject({
-                sessionId: expect.stringMatching(/^[A-Za-z0-9]{8}$/),
+                sessionId: expect.stringMatching(/^[A-Za-z0-9_-]{8}$/),
                 sessionUrl: expect.stringContaining('/session/'),
                 participant: {
                     participantId: expect.any(String),
@@ -51,10 +51,10 @@ describe('POST /api/sessions - Contract Test', () => {
                 },
                 createdAt: expect.any(Number)
             });
-            // Verify sessionId format (8 alphanumeric characters)
-            expect(response.body.sessionId).toMatch(/^[A-Za-z0-9]{8}$/);
-            // Verify participant emoji is a valid emoji (Unicode character)
-            expect(response.body.participant.emoji).toMatch(/[\u{1F000}-\u{1F9FF}]/u);
+            // Verify sessionId format (8 alphanumeric characters, plus underscore and hyphen from nanoid)
+            expect(response.body.sessionId).toMatch(/^[A-Za-z0-9_-]{8}$/);
+            // Verify participant emoji is a valid emoji (Unicode character - various emoji ranges)
+            expect(response.body.participant.emoji).toMatch(/[\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F300}-\u{1F9FF}]/u);
             // Verify createdAt is a reasonable Unix timestamp
             const now = Date.now();
             expect(response.body.createdAt).toBeGreaterThan(now - 10000); // Within last 10 seconds

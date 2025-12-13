@@ -37,9 +37,10 @@ interface UseVotingProps {
   socket: Socket | null;
   sessionId: string | null;
   participantId: string | null;
+  onError?: (message: string) => void;
 }
 
-export function useVoting({ socket, sessionId, participantId }: UseVotingProps) {
+export function useVoting({ socket, sessionId, participantId, onError }: UseVotingProps) {
   const [votingState, setVotingState] = useState<VotingState>({
     selectedCard: null,
     votedCount: 0,
@@ -159,15 +160,20 @@ export function useVoting({ socket, sessionId, participantId }: UseVotingProps) 
       console.error('Voting error:', error);
       setIsVoting(false);
 
-      // Show user-friendly error messages
+      // Show user-friendly error messages via callback
+      let message: string;
       if (error.code === 'ALREADY_REVEALED') {
-        alert('Votes have already been revealed. Please wait for the moderator to reset.');
+        message = 'Votes have already been revealed. Please wait for the moderator to reset.';
       } else if (error.code === 'NOT_MODERATOR') {
-        alert('Only moderators can perform this action.');
+        message = 'Only moderators can perform this action.';
       } else if (error.code === 'NO_VOTES') {
-        alert('No votes to reveal yet.');
+        message = 'No votes to reveal yet.';
       } else {
-        alert(error.message || 'An error occurred. Please try again.');
+        message = error.message || 'An error occurred. Please try again.';
+      }
+
+      if (onError) {
+        onError(message);
       }
     };
 
@@ -186,7 +192,7 @@ export function useVoting({ socket, sessionId, participantId }: UseVotingProps) 
       socket.off('votes-reset', handleVotesReset);
       socket.off('error', handleError);
     };
-  }, [socket]);
+  }, [socket, onError]);
 
   return {
     // State

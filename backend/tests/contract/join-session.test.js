@@ -14,6 +14,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { io as ioClient } from 'socket.io-client';
 import { createTestServer } from '../helpers/testServer';
+import { sessionService } from '../../src/services/SessionService.js';
+import { clearAllDisconnectTimers, setDisconnectGracePeriod } from '../../src/websocket/handlers/connectionHandlers.js';
 describe('Contract: join-session WebSocket Event', () => {
     let httpServer;
     let ioServer;
@@ -21,23 +23,37 @@ describe('Contract: join-session WebSocket Event', () => {
     let creatorSocket;
     let joinerSocket;
     beforeEach(async () => {
+        // Clear any pending disconnect timers
+        clearAllDisconnectTimers();
+        // Set longer grace period for reconnection test (5 seconds)
+        setDisconnectGracePeriod(5000);
+        sessionService.clearAllSessions();
         const testServer = await createTestServer();
         httpServer = testServer.httpServer;
         ioServer = testServer.ioServer;
         serverUrl = testServer.serverUrl;
     });
     afterEach(async () => {
+        // Clear disconnect timers
+        clearAllDisconnectTimers();
         if (creatorSocket?.connected) {
             creatorSocket.disconnect();
         }
         if (joinerSocket?.connected) {
             joinerSocket.disconnect();
         }
+        clearAllDisconnectTimers();
+        await new Promise(resolve => setTimeout(resolve, 100));
+        if (ioServer) {
+            ioServer.close();
+        }
         if (httpServer) {
             await new Promise((resolve) => {
                 httpServer.close(() => resolve());
             });
         }
+        clearAllDisconnectTimers();
+        sessionService.clearAllSessions();
     });
     describe('Successful Join Flow', () => {
         it('should accept valid join-session request and emit join-accepted', async () => {

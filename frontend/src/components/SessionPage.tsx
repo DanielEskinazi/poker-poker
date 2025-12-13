@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { socketService } from '../services/socketService';
 import { storageService } from '../services/storageService';
@@ -62,11 +62,31 @@ export function SessionPage() {
   const [showExpiredModal, setShowExpiredModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Ref to prevent duplicate reconnection attempts
+  const initialConnectionAttemptedRef = useRef(false);
+  // Track if this is a true reconnection (after disconnect) vs initial join
+  const hasEverConnectedRef = useRef(false);
+
+  // Toast notification helper (defined early for use in hooks)
+  const showToast = useCallback((message: string, type: ToastMessage['type'] = 'info') => {
+    const id = `toast_${Date.now()}`;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  }, []);
+
+  // Handle voting errors with toasts instead of alerts
+  const handleVotingError = useCallback((message: string) => {
+    showToast(message, 'error');
+  }, [showToast]);
+
   // Initialize voting hook
   const voting = useVoting({
     socket: socketService.getSocket(),
     sessionId: sessionId || null,
     participantId: currentParticipant?.participantId || null,
+    onError: handleVotingError,
   });
 
   // Generate or retrieve browser fingerprint
@@ -79,8 +99,13 @@ export function SessionPage() {
     return fingerprint;
   }, []);
 
-  // Handle reconnection callback
+  // Handle reconnection callback (only for reconnections after initial mount)
   const handleReconnected = useCallback(() => {
+    // Skip if this is the initial connection (handled by mount useEffect)
+    if (!initialConnectionAttemptedRef.current) {
+      return;
+    }
+
     if (sessionId && !isJoined) {
       // Try to rejoin with saved participant data
       const savedData = storageService.getParticipantDataForSession(sessionId);
@@ -107,14 +132,6 @@ export function SessionPage() {
     attemptNumber,
     retryConnection,
   } = useReconnection(sessionId, handleReconnected);
-
-  const showToast = (message: string, type: ToastMessage['type'] = 'info') => {
-    const id = `toast_${Date.now()}`;
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
-  };
 
   const copySessionId = async () => {
     if (!sessionId) return;
@@ -197,6 +214,9 @@ export function SessionPage() {
         storageService.saveRecentSession(sessionId);
 
         showToast(`Welcome, ${data.participant.name}!`, 'success');
+
+        // Mark as connected for future reconnection detection
+        hasEverConnectedRef.current = true;
 
         // Fetch participants
         fetchParticipants();
@@ -359,6 +379,9 @@ export function SessionPage() {
 
     const savedParticipantData = storageService.getParticipantDataForSession(sessionId);
     if (savedParticipantData && savedParticipantData.name) {
+      // Mark as initial connection attempt BEFORE connecting to prevent handleReconnected from also triggering
+      initialConnectionAttemptedRef.current = true;
+
       // Try to reconnect
       setIsJoining(true);
       const socket = socketService.connect();
@@ -370,7 +393,9 @@ export function SessionPage() {
         setIsJoined(true);
         setIsJoining(false);
         fetchParticipants();
-        showToast('Reconnected successfully', 'success');
+        // Auto-join from saved data is silent - no toast needed
+        // Toasts are shown by: handleJoinSession ("Welcome!") and handleReconnected ("Reconnected")
+        hasEverConnectedRef.current = true;
       });
 
       socket.once('error', () => {
@@ -383,6 +408,9 @@ export function SessionPage() {
         name: savedParticipantData.name,
         browserFingerprint: fingerprint,
       });
+    } else {
+      // No saved data, mark as ready for future reconnections
+      initialConnectionAttemptedRef.current = true;
     }
   }, [sessionId, navigate]);
 
