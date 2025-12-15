@@ -28,3 +28,6 @@ test-results/
 
 .playwright-mcp/
 .vite/
+
+# Git Worktrees
+.worktrees/
