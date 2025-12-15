@@ -8,7 +8,7 @@ export type ReconnectionState = 'connected' | 'disconnected' | 'reconnecting' | 
 /**
  * Callback type for reconnection state changes
  */
-export type ReconnectionCallback = (state: ReconnectionState, attemptNumber?: number) => void;
+export type ReconnectionCallback = (state: ReconnectionState, attemptNumber?: number, hasConnectedOnce?: boolean) => void;
 
 /**
  * SocketService
@@ -21,6 +21,7 @@ class SocketService {
   private serverUrl: string;
   private reconnectionCallbacks: Set<ReconnectionCallback> = new Set();
   private reconnectionState: ReconnectionState = 'disconnected';
+  private hasConnectedOnce: boolean = false;
 
   constructor() {
     this.serverUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -45,6 +46,7 @@ class SocketService {
 
     this.socket.on('connect', () => {
       console.log('[Socket] Connected:', this.socket?.id);
+      this.hasConnectedOnce = true;
       this.setReconnectionState('connected');
     });
 
@@ -81,7 +83,7 @@ class SocketService {
    */
   private setReconnectionState(state: ReconnectionState, attemptNumber?: number): void {
     this.reconnectionState = state;
-    this.reconnectionCallbacks.forEach(callback => callback(state, attemptNumber));
+    this.reconnectionCallbacks.forEach(callback => callback(state, attemptNumber, this.hasConnectedOnce));
   }
 
   /**
@@ -90,7 +92,7 @@ class SocketService {
   onReconnectionStateChange(callback: ReconnectionCallback): () => void {
     this.reconnectionCallbacks.add(callback);
     // Immediately call with current state
-    callback(this.reconnectionState);
+    callback(this.reconnectionState, undefined, this.hasConnectedOnce);
     // Return unsubscribe function
     return () => {
       this.reconnectionCallbacks.delete(callback);

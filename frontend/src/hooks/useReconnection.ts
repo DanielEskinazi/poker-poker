@@ -17,12 +17,14 @@ export function useReconnection(
   const [reconnectionState, setReconnectionState] = useState<ReconnectionState>('disconnected');
   const [attemptNumber, setAttemptNumber] = useState<number | undefined>(undefined);
   const [isRejoining, setIsRejoining] = useState(false);
+  const [hasConnectedOnce, setHasConnectedOnce] = useState(false);
 
   // Handle reconnection state changes
   useEffect(() => {
-    const unsubscribe = socketService.onReconnectionStateChange((state, attempt) => {
+    const unsubscribe = socketService.onReconnectionStateChange((state, attempt, connectedOnce) => {
       setReconnectionState(state);
       setAttemptNumber(attempt);
+      setHasConnectedOnce(connectedOnce ?? false);
 
       // If reconnected and we have a session, try to rejoin
       if (state === 'connected' && sessionId) {
@@ -52,7 +54,9 @@ export function useReconnection(
   }, [reconnectionState]);
 
   // Helper to check if we should show reconnecting UI
-  const isReconnecting = reconnectionState === 'reconnecting' || reconnectionState === 'disconnected';
+  // Only show reconnecting banner if we've connected at least once before
+  // This prevents showing the banner for new users who haven't connected yet
+  const isReconnecting = hasConnectedOnce && (reconnectionState === 'reconnecting' || reconnectionState === 'disconnected');
   const isConnectionFailed = reconnectionState === 'failed';
 
   // Manual retry function
