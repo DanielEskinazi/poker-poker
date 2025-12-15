@@ -5,6 +5,7 @@
 
 import type { Participant } from './Participant.js';
 import type { Vote, VoteRound } from './Vote.js';
+import type { StoryDetails } from './Story.js';
 
 /**
  * Voting state of a session
@@ -19,7 +20,9 @@ export interface SessionMetadata {
   createdAt: number;
   lastActivityAt: number;
   expiresAt: number;
+  /** @deprecated Use story.description for backward compatibility display */
   storyDescription: string;
+  story: StoryDetails;
   votingState: VotingState;
   participantCount: number;
 }
@@ -32,7 +35,9 @@ export interface SessionData {
   createdAt: number;
   lastActivityAt: number;
   expiresAt: number;
+  /** @deprecated Use story.description for backward compatibility display */
   storyDescription: string;
+  story: StoryDetails;
   votingState: VotingState;
   participants: Participant[];
   votes: Vote[];

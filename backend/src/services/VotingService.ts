@@ -94,6 +94,7 @@ export class VotingService {
         roundNumber: session.voteHistory.length + 1,
         completedAt: Date.now(),
         storyDescription: session.storyDescription,
+        story: { ...session.story }, // Copy story at time of vote
         votes,
         consensus: new Set(votes.map((v) => v.cardValue)).size === 1,
         averageVote:

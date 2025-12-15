@@ -338,10 +338,160 @@ export function handleResetVotes(socket: Socket) {
 }
 
 /**
+ * Handle update-story event (Moderator only)
+ *
+ * Updates the story details for the current session.
+ * Broadcasts the update to all participants.
+ */
+export function handleUpdateStory(socket: Socket) {
+  socket.on('update-story', async (data) => {
+    try {
+      logWebSocketEvent('update-story', socket.id, data);
+
+      const { sessionId, moderatorId, story } = data;
+
+      // Validate required fields
+      if (!sessionId) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Session ID is required',
+          field: 'sessionId'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      if (!moderatorId) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Moderator ID is required',
+          field: 'moderatorId'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      if (!story) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Story details are required',
+          field: 'story'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      // Get session
+      const session = sessionService.getSession(sessionId);
+      if (!session) {
+        const errorResponse = {
+          code: ERROR_CODES.SESSION_NOT_FOUND,
+          message: 'Session not found or has expired'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      // Validate moderator authorization
+      if (!session.moderatorIds.has(moderatorId)) {
+        const errorResponse = {
+          code: 'NOT_MODERATOR',
+          message: 'Only moderators can update story details'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      // Validate story fields
+      if (story.title && story.title.length > 100) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Story title must be 100 characters or less',
+          field: 'story.title'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      if (story.description && story.description.length > 500) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Story description must be 500 characters or less',
+          field: 'story.description'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      if (story.acceptanceCriteria && story.acceptanceCriteria.length > 1000) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Acceptance criteria must be 1000 characters or less',
+          field: 'story.acceptanceCriteria'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      if (story.ticketLink && story.ticketLink.length > 2000) {
+        const errorResponse = {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Ticket link must be 2000 characters or less',
+          field: 'story.ticketLink'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      // Update story using SessionService
+      const updated = sessionService.updateStory(sessionId, {
+        title: story.title || '',
+        description: story.description || '',
+        acceptanceCriteria: story.acceptanceCriteria || '',
+        ticketLink: story.ticketLink || '',
+      });
+
+      if (!updated) {
+        const errorResponse = {
+          code: ERROR_CODES.SESSION_NOT_FOUND,
+          message: 'Failed to update story'
+        };
+        socket.emit('error', errorResponse);
+        return;
+      }
+
+      // Broadcast story-updated to all participants
+      const storyUpdatedPayload = {
+        story: session.story,
+        updatedBy: moderatorId,
+        timestamp: Date.now()
+      };
+
+      socket.to(sessionId).emit('story-updated', storyUpdatedPayload);
+      socket.emit('story-updated', storyUpdatedPayload);
+
+      logWebSocketEvent('story-updated', sessionId, {
+        title: story.title,
+        updatedBy: moderatorId
+      });
+
+    } catch (error) {
+      logError('Error in update-story handler', error, { socketId: socket.id, data });
+      const errorResponse = {
+        code: ERROR_CODES.VALIDATION_ERROR,
+        message: error instanceof Error ? error.message : 'Failed to update story'
+      };
+      socket.emit('error', errorResponse);
+    }
+  });
+}
+
+/**
  * Register all voting handlers for a socket connection
  */
 export function registerVotingHandlers(socket: Socket) {
   handleCastVote(socket);
   handleRevealVotes(socket);
   handleResetVotes(socket);
+  handleUpdateStory(socket);
 }

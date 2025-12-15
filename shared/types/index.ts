@@ -8,3 +8,4 @@ export * from './Session.js';
 export * from './Participant.js';
 export * from './Vote.js';
 export * from './Events.js';
+export * from './Story.js';

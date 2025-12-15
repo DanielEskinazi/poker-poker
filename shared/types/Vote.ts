@@ -4,6 +4,7 @@
  */
 
 import type { CardValue } from './Common.js';
+import type { StoryDetails } from './Story.js';
 
 /**
  * Vote data
@@ -23,7 +24,9 @@ export interface Vote {
 export interface VoteRound {
   roundNumber: number;
   completedAt: number;
+  /** @deprecated Use story for full details */
   storyDescription: string;
+  story: StoryDetails;
   votes: Vote[];
   consensus: boolean;
   averageVote: number | null;

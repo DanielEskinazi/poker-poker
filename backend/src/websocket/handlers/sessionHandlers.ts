@@ -309,6 +309,7 @@ export function handleJoinSession(socket: Socket) {
         session: {
           sessionId: result.session.sessionId,
           storyDescription: result.session.storyDescription,
+          story: result.session.story,
           votingState: result.session.votingState,
           participantCount: result.session.participantCount
         },

@@ -1,5 +1,6 @@
 import type { Participant } from './Participant.js';
 import type { Vote, VoteRound } from './Vote.js';
+import type { StoryDetails } from '../../../shared/types/Story.js';
 
 /**
  * Voting state of a session
@@ -22,8 +23,11 @@ export interface Session {
   /** Unix timestamp (ms) when session expires (createdAt + 1 hour) */
   expiresAt: number;
 
-  /** Story description being estimated */
+  /** @deprecated Use story.description for backward compatibility */
   storyDescription: string;
+
+  /** Structured story details */
+  story: StoryDetails;
 
   /** Current voting phase */
   votingState: VotingState;
@@ -50,6 +54,7 @@ export interface Session {
 export interface CreateSessionParams {
   creatorName: string;
   browserFingerprint: string;
+  story?: StoryDetails;
 }
 
 /**
@@ -68,7 +73,9 @@ export interface SessionMetadata {
   createdAt: number;
   lastActivityAt: number;
   expiresAt: number;
+  /** @deprecated Use story for full details */
   storyDescription: string;
+  story: StoryDetails;
   votingState: VotingState;
   participantCount: number;
 }

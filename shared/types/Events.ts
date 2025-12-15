@@ -7,6 +7,7 @@ import type { CardValue } from './Common.js';
 import type { Participant } from './Participant.js';
 import type { Vote, VoteStatistics } from './Vote.js';
 import type { SessionMetadata } from './Session.js';
+import type { StoryDetails } from './Story.js';
 
 // ===== Client → Server Events =====
 
@@ -41,6 +42,12 @@ export interface PromoteModeratorPayload {
   sessionId: string;
   promoterId: string;
   targetParticipantId: string;
+}
+
+export interface UpdateStoryPayload {
+  sessionId: string;
+  moderatorId: string;
+  story: StoryDetails;
 }
 
 // ===== Server → Client Events =====
@@ -89,6 +96,12 @@ export interface VotesRevealedPayload {
 
 export interface VotesResetPayload {
   sessionId: string;
+}
+
+export interface StoryUpdatedPayload {
+  sessionId: string;
+  story: StoryDetails;
+  updatedBy: string; // participantId who made the update
 }
 
 export interface ModeratorPromotedPayload {

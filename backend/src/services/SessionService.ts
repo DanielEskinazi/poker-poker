@@ -4,6 +4,19 @@ import { assignEmojiByHash } from '../utils/emojiAssigner.js';
 import { env } from '../config/environment.js';
 import type { Session, CreateSessionParams, CreateSessionResult } from '../models/Session.js';
 import type { Participant } from '../models/Participant.js';
+import type { StoryDetails } from '../../../shared/types/Story.js';
+
+/**
+ * Create an empty StoryDetails object
+ */
+function createEmptyStoryDetails(): StoryDetails {
+  return {
+    title: '',
+    description: '',
+    acceptanceCriteria: '',
+    ticketLink: '',
+  };
+}
 
 /**
  * SessionService
@@ -48,13 +61,17 @@ export class SessionService {
       currentVote: null,
     };
 
+    // Initialize story - use provided story or create empty
+    const story = params.story || createEmptyStoryDetails();
+
     // Create session
     const session: Session = {
       sessionId,
       createdAt: now,
       lastActivityAt: now,
       expiresAt: now + env.SESSION_EXPIRY_MS,
-      storyDescription: 'Story to estimate',
+      storyDescription: story.title || story.description || 'Story to estimate', // backward compat
+      story,
       votingState: 'voting',
       participants: new Map([[creatorId, creator]]),
       votes: new Map(),
@@ -84,6 +101,22 @@ export class SessionService {
     if (session) {
       session.lastActivityAt = Date.now();
     }
+  }
+
+  /**
+   * Update story details for a session
+   */
+  updateStory(sessionId: string, story: StoryDetails): boolean {
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return false;
+    }
+
+    session.story = story;
+    // Keep storyDescription in sync for backward compatibility
+    session.storyDescription = story.title || story.description || 'Story to estimate';
+    session.lastActivityAt = Date.now();
+    return true;
   }
 
   /**

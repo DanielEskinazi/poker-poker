@@ -7,6 +7,7 @@ import { CardDeck } from './CardDeck';
 import { useVoting } from '../hooks/useVoting';
 import { useReconnection } from '../hooks/useReconnection';
 import { ReconnectionBanner } from './ReconnectionBanner';
+import { StoryPanel } from './StoryPanel';
 
 /**
  * SessionPage Component
@@ -14,6 +15,13 @@ import { ReconnectionBanner } from './ReconnectionBanner';
  * Main session interface for Planning Poker.
  * Slate & Stone theme - Corporate Minimalism.
  */
+
+interface StoryDetails {
+  title: string;
+  description: string;
+  acceptanceCriteria: string;
+  ticketLink: string;
+}
 
 interface Participant {
   participantId: string;
@@ -28,6 +36,7 @@ interface Participant {
 interface SessionData {
   sessionId: string;
   storyDescription: string;
+  story: StoryDetails;
   votingState: 'voting' | 'revealed';
   participantCount: number;
 }
@@ -61,6 +70,7 @@ export function SessionPage() {
   const [sessionExpiryWarning, setSessionExpiryWarning] = useState<number | null>(null); // minutes remaining
   const [showExpiredModal, setShowExpiredModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isStoryExpanded, setIsStoryExpanded] = useState(false);
 
   // Ref to prevent duplicate reconnection attempts
   const initialConnectionAttemptedRef = useRef(false);
@@ -182,6 +192,28 @@ export function SessionPage() {
     }
   };
 
+  const handleUpdateStory = useCallback((story: StoryDetails) => {
+    if (!sessionId || !currentParticipant?.participantId || !currentParticipant.isModerator) return;
+
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    socket.emit('update-story', {
+      sessionId,
+      moderatorId: currentParticipant.participantId,
+      story,
+    });
+
+    // Optimistically update local state
+    setSession((prev) => prev ? {
+      ...prev,
+      story,
+      storyDescription: story.title || story.description || prev.storyDescription,
+    } : null);
+
+    showToast('Story updated', 'success');
+  }, [sessionId, currentParticipant, showToast]);
+
   const handleJoinSession = async () => {
     if (!name.trim()) {
       setError('Please enter your name');
@@ -204,7 +236,17 @@ export function SessionPage() {
       socket.once('join-accepted', (data: any) => {
         console.log('[SessionPage] Join accepted:', data);
         setCurrentParticipant(data.participant);
-        setSession(data.session);
+        // Ensure story object exists with defaults
+        const sessionData = {
+          ...data.session,
+          story: data.session.story || {
+            title: '',
+            description: data.session.storyDescription || '',
+            acceptanceCriteria: '',
+            ticketLink: '',
+          },
+        };
+        setSession(sessionData);
         setIsJoined(true);
         setIsJoining(false);
 
@@ -332,12 +374,30 @@ export function SessionPage() {
       fetchParticipants();
     };
 
+    // Handle story updated (from another moderator)
+    const handleStoryUpdated = (data: any) => {
+      console.log('[SessionPage] Story updated:', data);
+
+      // Update local session state with new story
+      setSession((prev) => prev ? {
+        ...prev,
+        story: data.story,
+        storyDescription: data.story.title || data.story.description || prev.storyDescription,
+      } : null);
+
+      // Only show toast if update was from another participant
+      if (data.updatedBy !== currentParticipant?.participantId) {
+        showToast('Story details updated', 'info');
+      }
+    };
+
     socket.on('participant-joined', handleParticipantJoined);
     socket.on('participant-left', handleParticipantLeft);
     socket.on('session-expiring', handleSessionExpiring);
     socket.on('session-expired', handleSessionExpired);
     socket.on('moderator-promoted', handleModeratorPromoted);
     socket.on('spectator-toggled', handleSpectatorToggled);
+    socket.on('story-updated', handleStoryUpdated);
 
     return () => {
       socket.off('participant-joined', handleParticipantJoined);
@@ -346,8 +406,9 @@ export function SessionPage() {
       socket.off('session-expired', handleSessionExpired);
       socket.off('moderator-promoted', handleModeratorPromoted);
       socket.off('spectator-toggled', handleSpectatorToggled);
+      socket.off('story-updated', handleStoryUpdated);
     };
-  }, [isJoined, navigate, currentParticipant]);
+  }, [isJoined, navigate, currentParticipant, showToast]);
 
   // Keyboard shortcuts for moderator actions
   useEffect(() => {
@@ -389,7 +450,17 @@ export function SessionPage() {
 
       socket.once('join-accepted', (data: any) => {
         setCurrentParticipant(data.participant);
-        setSession(data.session);
+        // Ensure story object exists with defaults
+        const sessionData = {
+          ...data.session,
+          story: data.session.story || {
+            title: '',
+            description: data.session.storyDescription || '',
+            acceptanceCriteria: '',
+            ticketLink: '',
+          },
+        };
+        setSession(sessionData);
         setIsJoined(true);
         setIsJoining(false);
         fetchParticipants();
@@ -944,11 +1015,15 @@ export function SessionPage() {
               ) : (
                 /* Voting View */
                 <div className="flex-1 bg-white rounded-lg border border-slate-200 p-4 flex flex-col">
-                  {/* Story Description - Compact */}
-                  {session?.storyDescription && (
-                    <div className="flex-shrink-0 mb-3 p-2 rounded-md bg-slate-50 border border-slate-100">
-                      <p className="text-xs text-slate-600 line-clamp-2">{session.storyDescription}</p>
-                    </div>
+                  {/* Story Details Panel */}
+                  {session?.story && (
+                    <StoryPanel
+                      story={session.story}
+                      isModerator={currentParticipant?.isModerator ?? false}
+                      isExpanded={isStoryExpanded}
+                      onToggleExpand={() => setIsStoryExpanded(!isStoryExpanded)}
+                      onStoryUpdate={handleUpdateStory}
+                    />
                   )}
 
                   {/* Card Deck - Centered (or Spectator Message) */}
