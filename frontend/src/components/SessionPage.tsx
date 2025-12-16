@@ -391,6 +391,20 @@ export function SessionPage() {
       }
     };
 
+    // Handle votes reset - clear story for new round
+    const handleVotesReset = (data: any) => {
+      console.log('[SessionPage] Votes reset, clearing story:', data);
+
+      // Clear story for new round
+      if (data.story) {
+        setSession((prev) => prev ? {
+          ...prev,
+          story: data.story,
+          storyDescription: '',
+        } : null);
+      }
+    };
+
     socket.on('participant-joined', handleParticipantJoined);
     socket.on('participant-left', handleParticipantLeft);
     socket.on('session-expiring', handleSessionExpiring);
@@ -398,6 +412,7 @@ export function SessionPage() {
     socket.on('moderator-promoted', handleModeratorPromoted);
     socket.on('spectator-toggled', handleSpectatorToggled);
     socket.on('story-updated', handleStoryUpdated);
+    socket.on('votes-reset', handleVotesReset);
 
     return () => {
       socket.off('participant-joined', handleParticipantJoined);
@@ -407,6 +422,7 @@ export function SessionPage() {
       socket.off('moderator-promoted', handleModeratorPromoted);
       socket.off('spectator-toggled', handleSpectatorToggled);
       socket.off('story-updated', handleStoryUpdated);
+      socket.off('votes-reset', handleVotesReset);
     };
   }, [isJoined, navigate, currentParticipant, showToast]);
 

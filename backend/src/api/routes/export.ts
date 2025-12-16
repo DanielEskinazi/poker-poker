@@ -34,8 +34,8 @@ router.get('/sessions/:sessionId/export', async (req: Request, res: Response) =>
       });
     }
 
-    // Validate session ID format (8 alphanumeric characters)
-    if (!/^[A-Za-z0-9]{8}$/.test(sessionId)) {
+    // Validate session ID format (8 characters, alphanumeric plus - and _)
+    if (!/^[A-Za-z0-9_-]{8}$/.test(sessionId)) {
       return res.status(404).json({
         error: {
           code: 'SESSION_NOT_FOUND',

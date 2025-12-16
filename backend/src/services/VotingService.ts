@@ -1,6 +1,16 @@
 import type { Session } from '../models/Session.js';
 import type { Vote, VoteRound, VoteStatistics, CastVoteParams, RevealedVotesData } from '../models/Vote.js';
 import type { CardValue } from '../config/constants.js';
+import type { StoryDetails } from '../../../shared/types/Story.js';
+
+function createEmptyStoryDetails(): StoryDetails {
+  return {
+    title: '',
+    description: '',
+    acceptanceCriteria: '',
+    ticketLink: '',
+  };
+}
 
 /**
  * VotingService
@@ -113,6 +123,11 @@ export class VotingService {
       p.hasVoted = false;
       p.currentVote = null;
     });
+
+    // Clear story for new round
+    session.story = createEmptyStoryDetails();
+    session.storyDescription = '';
+
     session.lastActivityAt = Date.now();
   }
 

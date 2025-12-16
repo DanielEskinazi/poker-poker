@@ -110,8 +110,8 @@ export class ExportService {
   private createVotingRoundsSheet(workbook: ExcelJS.Workbook, session: Session): void {
     const sheet = workbook.addWorksheet('Voting Rounds');
 
-    // Header row
-    const headers = ['Round', 'Story', 'Participant', 'Vote', 'Timestamp'];
+    // Header row with story details columns
+    const headers = ['Round', 'Story Title', 'Description', 'Acceptance Criteria', 'Ticket Link', 'Participant', 'Vote', 'Timestamp'];
     const headerRow = sheet.addRow(headers);
     headerRow.eachCell(cell => {
       cell.style = {
@@ -127,11 +127,15 @@ export class ExportService {
     // Add current round votes if revealed
     if (session.votingState === 'revealed' && session.votes.size > 0) {
       const currentRoundNumber = session.voteHistory.length + 1;
+      const story = session.story;
 
       session.votes.forEach(vote => {
         sheet.addRow([
           currentRoundNumber,
-          session.storyDescription,
+          story.title || '',
+          story.description || '',
+          story.acceptanceCriteria || '',
+          story.ticketLink || '',
           `${vote.participantName} ${vote.participantEmoji}`,
           vote.cardValue,
           new Date(vote.votedAt).toISOString()
@@ -151,10 +155,10 @@ export class ExportService {
       const consensus = uniqueVotes.size === 1 ? 'Yes' : 'No';
 
       // Add summary rows with bold styling
-      const avgRow = sheet.addRow([currentRoundNumber, 'Average', '', average, '']);
+      const avgRow = sheet.addRow([currentRoundNumber, 'Average', '', '', '', '', average, '']);
       avgRow.eachCell(cell => { cell.style = { font: { bold: true } }; });
 
-      const consensusRow = sheet.addRow([currentRoundNumber, 'Consensus', '', consensus, '']);
+      const consensusRow = sheet.addRow([currentRoundNumber, 'Consensus', '', '', '', '', consensus, '']);
       consensusRow.eachCell(cell => { cell.style = { font: { bold: true } }; });
 
       // Add empty row between rounds
@@ -163,10 +167,15 @@ export class ExportService {
 
     // Add historical rounds
     session.voteHistory.forEach((round, index) => {
+      const story = round.story;
+
       round.votes.forEach(vote => {
         sheet.addRow([
           round.roundNumber,
-          round.storyDescription,
+          story.title || '',
+          story.description || '',
+          story.acceptanceCriteria || '',
+          story.ticketLink || '',
           `${vote.participantName} ${vote.participantEmoji}`,
           vote.cardValue,
           new Date(vote.votedAt).toISOString()
@@ -177,10 +186,10 @@ export class ExportService {
       const average = round.averageVote !== null ? round.averageVote.toFixed(1) : 'N/A';
       const consensus = round.consensus ? 'Yes' : 'No';
 
-      const avgRow = sheet.addRow([round.roundNumber, 'Average', '', average, '']);
+      const avgRow = sheet.addRow([round.roundNumber, 'Average', '', '', '', '', average, '']);
       avgRow.eachCell(cell => { cell.style = { font: { bold: true } }; });
 
-      const consensusRow = sheet.addRow([round.roundNumber, 'Consensus', '', consensus, '']);
+      const consensusRow = sheet.addRow([round.roundNumber, 'Consensus', '', '', '', '', consensus, '']);
       consensusRow.eachCell(cell => { cell.style = { font: { bold: true } }; });
 
       // Add empty row between rounds (except after last)
@@ -191,13 +200,16 @@ export class ExportService {
 
     // If no voting data, add a message
     if (session.votes.size === 0 && session.voteHistory.length === 0) {
-      sheet.addRow(['No voting data', '', '', '', '']);
+      sheet.addRow(['No voting data', '', '', '', '', '', '', '']);
     }
 
     // Auto-width columns
     sheet.columns = [
       { width: 10 },  // Round
-      { width: 30 },  // Story
+      { width: 30 },  // Story Title
+      { width: 40 },  // Description
+      { width: 40 },  // Acceptance Criteria
+      { width: 30 },  // Ticket Link
       { width: 20 },  // Participant
       { width: 10 },  // Vote
       { width: 25 }   // Timestamp

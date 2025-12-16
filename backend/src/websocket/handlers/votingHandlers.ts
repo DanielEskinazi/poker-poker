@@ -316,8 +316,9 @@ export function handleResetVotes(socket: Socket) {
       // Reset votes using VotingService
       votingService.resetVotes(session, moderatorId);
 
-      // Broadcast votes-reset to all participants
+      // Broadcast votes-reset to all participants (include cleared story)
       const resetPayload = {
+        story: session.story,
         timestamp: Date.now()
       };
 
